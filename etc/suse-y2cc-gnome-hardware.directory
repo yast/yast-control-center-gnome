@@ -1,0 +1,26 @@
+[Desktop Entry]
+Type=Directory
+Icon=yast-hardware
+
+X-SuSE-translate=true
+X-SuSE-DocTeamID=ycc_hardware
+
+Name=Hardware
+Name[cs]=Hardware
+X-KDE-SubstituteUID=true
+
+Name[bg]=Хардуер
+Name[el]=Υλικό
+Name[fi]=Laitteisto
+Name[fr]=Matériel
+Name[hu]=Hardver
+Name[ja]=ハードウェア
+Name[km]=ផ្នែករឹង
+Name[nb]=Maskinvare
+Name[pa]=ਜੰਤਰ
+Name[pl]=Sprzęt
+Name[ru]=Оборудование
+Name[sv]=Hårdvara
+Name[uk]=Обладнання
+Name[zh_CN]=硬件
+Name[zh_TW]=硬體
