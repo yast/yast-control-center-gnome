@@ -17,8 +17,6 @@ libshell_unpatched_la_SOURCES =			\
 	cc-shell-log.c				\
 	cc-shell-log.h				\
 	gnome-control-center.h			\
-	shell-search-renderer.c			\
-	shell-search-renderer.h			\
 	cc-shell-category-view.c		\
 	cc-shell-category-view.h		\
 	cc-shell-item-view.c			\

@@ -1,5 +1,5 @@
---- patch/../cut-n-paste/shell/control-center.c	2012-01-11 11:20:37.282537770 +0100
-+++ patch/../control-center.c	2012-01-11 11:30:21.628862207 +0100
+--- ./../cut-n-paste/shell/control-center.c	2013-02-16 15:00:07.010264000 -0600
++++ ./../control-center.c	2013-02-16 16:01:26.034401456 -0600
 @@ -28,7 +28,9 @@
  
  #include <gtk/gtk.h>
@@ -8,9 +8,9 @@
  #include <libnotify/notify.h>
 +#endif
  
- #include "cc-shell-log.h"
- 
-@@ -42,8 +44,10 @@
+ #ifdef GDK_WINDOWING_X11
+ #include <X11/Xlib.h>
+@@ -46,8 +48,10 @@
    exit (0);
  }
  
@@ -21,7 +21,7 @@
  static gboolean verbose = FALSE;
  static gboolean show_help = FALSE;
  static gboolean show_help_gtk = FALSE;
-@@ -52,11 +56,15 @@
+@@ -56,11 +60,15 @@
  const GOptionEntry all_options[] = {
    { "version", 0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, option_version_cb, NULL, NULL },
    { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, N_("Enable verbose mode"), NULL },
@@ -34,10 +34,10 @@
 +#if 0
    { G_OPTION_REMAINING, '\0', 0, G_OPTION_ARG_FILENAME_ARRAY, &start_panels, N_("Panel to display"), NULL },
 +#endif
-   { NULL } /* end the list */
+   { NULL, 0, 0, 0, NULL, NULL, NULL } /* end the list */
  };
  
-@@ -72,13 +80,17 @@
+@@ -76,13 +84,17 @@
    GError *error = NULL;
  
    verbose = FALSE;
@@ -56,7 +56,7 @@
    g_option_context_add_main_entries (context, all_options, GETTEXT_PACKAGE);
    g_option_context_set_translation_domain(context, GETTEXT_PACKAGE);
    g_option_context_add_group (context, gtk_get_option_group (TRUE));
-@@ -116,6 +128,7 @@
+@@ -120,6 +132,7 @@
  
    gnome_control_center_show (shell, GTK_APPLICATION (application));
  
@@ -64,7 +64,7 @@
    if (show_overview)
      {
        gnome_control_center_set_overview_page (shell);
-@@ -144,17 +157,20 @@
+@@ -148,17 +161,20 @@
              }
          }
      }
@@ -85,7 +85,7 @@
  
    return retval;
  }
-@@ -175,6 +191,8 @@
+@@ -231,6 +247,8 @@
    GtkApplication *application;
    int status;
  
@@ -94,7 +94,7 @@
    bindtextdomain (GETTEXT_PACKAGE, GNOMELOCALEDIR);
    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
    textdomain (GETTEXT_PACKAGE);
-@@ -182,15 +200,21 @@
+@@ -242,15 +260,21 @@
    gtk_init (&argc, &argv);
    cc_shell_log_init ();
  
@@ -117,25 +117,51 @@
    g_signal_connect (application, "startup",
                      G_CALLBACK (application_startup_cb), shell);
    g_signal_connect (application, "command-line",
---- patch/../cut-n-paste/shell/gnome-control-center.c	2012-01-11 11:23:37.375788585 +0100
-+++ patch/../gnome-control-center.c	2012-01-11 11:30:21.630862187 +0100
-@@ -88,6 +88,7 @@
-   gchar *default_window_icon;
- };
+--- ./../cut-n-paste/shell/gnome-control-center.c	2013-02-16 15:00:07.010264000 -0600
++++ ./../gnome-control-center.c	2013-02-16 17:15:37.509567703 -0600
+@@ -28,7 +28,7 @@
+ #include <gtk/gtk.h>
+ #include <gdk/gdkkeysyms.h>
+ #include <string.h>
+-#ifdef HAVE_CHEESE
++#if 0 /* ifdef HAVE_CHEESE*/
+ #include <clutter-gtk/clutter-gtk.h>
+ #endif /* HAVE_CHEESE */
+ #define GMENU_I_KNOW_THIS_IS_UNSTABLE
+@@ -51,6 +51,7 @@
+  * Both sizes are defined in https://live.gnome.org/Design/SystemSettings/ */
+ #define FIXED_WIDTH 740
+ #define FIXED_HEIGHT 636
++#define YAST_FIXED_HEIGHT (FIXED_HEIGHT - 67)
+ #define SMALL_SCREEN_FIXED_HEIGHT 400
+ 
+ #define MIN_ICON_VIEW_HEIGHT 300
+@@ -145,13 +146,16 @@
+   g_warning ("Couldn't find GtkNotebook page to remove %p", page);
+ }
+ 
++#if 0
+ static void
+ notebook_add_page (GtkWidget *notebook,
+ 		   GtkWidget *page)
+ {
+   gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, NULL);
+ }
++#endif
  
 +#if 0
  static const gchar *
  get_icon_name_from_g_icon (GIcon *gicon)
  {
-@@ -109,6 +110,7 @@
+@@ -173,6 +177,7 @@
  
    return NULL;
  }
 +#endif
  
- static void
+ static gboolean
  activate_panel (GnomeControlCenter *shell,
-@@ -118,6 +120,33 @@
+@@ -182,6 +187,33 @@
                  const gchar        *name,
                  GIcon              *gicon)
  {
@@ -169,15 +195,16 @@
    GnomeControlCenterPrivate *priv = shell->priv;
    GType panel_type = G_TYPE_INVALID;
    GList *panels, *l;
-@@ -199,6 +228,7 @@
-           g_warning ("Could not find the loadable module for panel '%s'", id);
-         }
-     }
+@@ -246,7 +278,7 @@
+   gtk_window_set_icon_name (GTK_WINDOW (priv->window), icon_name);
+ 
+   priv->current_panel_box = box;
+-
 +#endif
+   return TRUE;
  }
  
- static void
-@@ -769,7 +799,7 @@
+@@ -854,7 +886,7 @@
  
    priv->store = (GtkListStore *) cc_shell_model_new ();
    priv->category_views = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
@@ -186,7 +213,7 @@
  
    reload_menu (shell);
  
-@@ -779,6 +809,7 @@
+@@ -864,6 +896,7 @@
  static void
  load_panel_plugins (GnomeControlCenter *shell)
  {
@@ -194,7 +221,7 @@
    GList *modules;
  
    /* only allow this function to be run once to prevent modules being loaded
-@@ -797,6 +828,7 @@
+@@ -882,6 +915,7 @@
    modules = g_io_modules_load_all_in_directory (PANELS_DIR);
    g_list_free (modules);
  
@@ -202,12 +229,84 @@
  }
  
  
---- patch/../cut-n-paste/shell/shell.ui	2012-01-11 11:23:19.550961711 +0100
-+++ patch/../shell.ui	2012-01-11 11:27:45.688376803 +0100
+@@ -897,7 +931,9 @@
+ 			 GParamSpec               *spec,
+                          GnomeControlCenterPrivate *priv)
+ {
++#if 0
+   int nat_height;
++#endif
+   GtkWidget *child;
+ 
+   child = notebook_get_selected_page (GTK_WIDGET (notebook));
+@@ -909,16 +945,20 @@
+       gtk_widget_hide (W (priv->builder, "home-button"));
+       gtk_widget_show (W (priv->builder, "search-entry"));
+       gtk_widget_hide (W (priv->builder, "lock-button"));
+-
++      gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (priv->scrolled_window), priv->small_screen == SMALL_SCREEN_TRUE ? SMALL_SCREEN_FIXED_HEIGHT : YAST_FIXED_HEIGHT);
++#if 0
+       gtk_widget_get_preferred_height_for_width (GTK_WIDGET (priv->main_vbox),
+                                                  FIXED_WIDTH, NULL, &nat_height);
+       gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (priv->scrolled_window),
+                                                   priv->small_screen == SMALL_SCREEN_TRUE ? SMALL_SCREEN_FIXED_HEIGHT : nat_height);
++#endif
+     }
+   else
+     {
+       gtk_widget_show (W (priv->builder, "home-button"));
+       gtk_widget_hide (W (priv->builder, "search-entry"));
++      gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (priv->scrolled_window), MIN_ICON_VIEW_HEIGHT);
++#if 0
+       /* set the scrolled window small so that it doesn't force
+          the window to be larger than this panel */
+       gtk_widget_get_preferred_height_for_width (GTK_WIDGET (priv->window),
+@@ -927,6 +967,7 @@
+       gtk_window_resize (GTK_WINDOW (priv->window),
+                          FIXED_WIDTH,
+                          nat_height);
++#endif
+     }
+ }
+ 
+@@ -1282,8 +1323,9 @@
+     {
+       if (self->priv->small_screen != small)
+         gtk_window_unmaximize (GTK_WINDOW (self->priv->window));
+-
++#if 0
+       gtk_window_set_resizable (GTK_WINDOW (self->priv->window), FALSE);
++#endif
+     }
+ 
+   self->priv->small_screen = small;
+@@ -1336,7 +1378,7 @@
+ 
+   priv = self->priv = CONTROL_CENTER_PRIVATE (self);
+ 
+-#ifdef HAVE_CHEESE
++#if 0 /* ifdef HAVE_CHEESE */
+   if (gtk_clutter_init (NULL, NULL) != CLUTTER_INIT_SUCCESS)
+     {
+       g_critical ("Clutter-GTK init failed");
+@@ -1373,8 +1415,10 @@
+ 
+   /* Main scrolled window */
+   priv->scrolled_window = W (priv->builder, "scrolledwindow1");
+-
++  gtk_widget_set_size_request (priv->scrolled_window, FIXED_WIDTH, priv->small_screen == SMALL_SCREEN_TRUE ? SMALL_SCREEN_FIXED_HEIGHT : YAST_FIXED_HEIGHT);
++#if 0
+   gtk_widget_set_size_request (priv->scrolled_window, FIXED_WIDTH, -1);
++#endif
+   priv->main_vbox = W (priv->builder, "main-vbox");
+   g_signal_connect (priv->notebook, "notify::page",
+                     G_CALLBACK (notebook_page_notify_cb), priv);
+--- ./../cut-n-paste/shell/shell.ui	2013-02-16 15:58:26.637394756 -0600
++++ ./../shell.ui	2013-02-16 15:59:45.233397691 -0600
 @@ -3,9 +3,9 @@
-   <requires lib="gtk+" version="2.16"/>
+   <requires lib="gtk+" version="3.0"/>
    <!-- interface-naming-policy project-wide -->
-   <object class="GtkWindow" id="main-window">
+   <object class="GtkApplicationWindow" id="main-window">
 -    <property name="title" translatable="yes">System Settings</property>
 -    <property name="resizable">False</property>
 -    <property name="icon_name">preferences-desktop</property>

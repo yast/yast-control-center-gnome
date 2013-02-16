@@ -158,14 +158,12 @@ cc_shell_set_active_panel (CcShell *shell,
   if (panel != shell->priv->active_panel)
     {
       /* remove the old panel */
-      g_object_unref (shell->priv->active_panel);
-      shell->priv->active_panel = NULL;
+      g_clear_object (&shell->priv->active_panel);
 
       /* set the new panel */
       if (panel)
         {
           shell->priv->active_panel = g_object_ref (panel);
-          g_object_set (G_OBJECT (panel), "shell", shell, NULL);
         }
       g_object_notify (G_OBJECT (shell), "active-panel");
     }
@@ -250,10 +248,9 @@ cc_shell_embed_widget_in_header (CcShell *shell, GtkWidget *widget)
       g_warning ("Object of type \"%s\" does not implement required virtual"
                  " function \"embed_widget_in_header\",",
                  G_OBJECT_TYPE_NAME (shell));
-      return FALSE;
     }
   else
     {
-      return class->embed_widget_in_header (shell, widget);
+      class->embed_widget_in_header (shell, widget);
     }
 }
