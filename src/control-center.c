@@ -179,6 +179,7 @@ application_command_line_cb (GApplication  *application,
   return retval;
 }
 
+#if 0
 static void
 help_activated (GSimpleAction *action,
                 GVariant      *parameter,
@@ -196,7 +197,9 @@ help_activated (GSimpleAction *action,
                 uri ? uri : "help:gnome-help/prefs",
                 GDK_CURRENT_TIME, NULL);
 }
+#endif
 
+#if 0
 static void
 quit_activated (GSimpleAction *action,
                 GVariant      *parameter,
@@ -205,11 +208,13 @@ quit_activated (GSimpleAction *action,
   GnomeControlCenter *shell = user_data;
   g_object_unref (shell);
 }
+#endif
 
 static void
 application_startup_cb (GApplication       *application,
                         GnomeControlCenter *shell)
 {
+#if 0
   GMenu *menu, *section;
   GAction *action;
 
@@ -234,7 +239,7 @@ application_startup_cb (GApplication       *application,
 
   gtk_application_add_accelerator (GTK_APPLICATION (application),
                                    "F1", "app.help", NULL);
-
+#endif
   /* nothing else to do here, we don't want to show a window before
    * we've looked at the commandline
    */
