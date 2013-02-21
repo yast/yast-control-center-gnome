@@ -773,8 +773,8 @@ maybe_add_category_view (GnomeControlCenter *shell,
     {
       GtkWidget *separator;
       separator = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
-      gtk_widget_set_margin_top (separator, 11);
-      gtk_widget_set_margin_bottom (separator, 10);
+      gtk_widget_set_margin_top (separator, 0);
+      gtk_widget_set_margin_bottom (separator, 0);
       gtk_box_pack_start (GTK_BOX (shell->priv->main_vbox), separator, FALSE, FALSE, 0);
       gtk_widget_show (separator);
     }
