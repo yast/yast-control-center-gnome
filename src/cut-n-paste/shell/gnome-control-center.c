@@ -28,12 +28,14 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #include <string.h>
+#ifdef HAVE_CHEESE
+#include <clutter-gtk/clutter-gtk.h>
+#endif /* HAVE_CHEESE */
 #define GMENU_I_KNOW_THIS_IS_UNSTABLE
 #include <gmenu-tree.h>
 
 #include "cc-panel.h"
 #include "cc-shell.h"
-#include "shell-search-renderer.h"
 #include "cc-shell-category-view.h"
 #include "cc-shell-model.h"
 
@@ -47,18 +49,17 @@ G_DEFINE_TYPE (GnomeControlCenter, gnome_control_center, CC_TYPE_SHELL)
 /* Use a fixed width for the shell, since resizing horizontally is more awkward
  * for the user than resizing vertically
  * Both sizes are defined in https://live.gnome.org/Design/SystemSettings/ */
-#define FIXED_WIDTH 675
-#define FIXED_HEIGHT 530
+#define FIXED_WIDTH 740
+#define FIXED_HEIGHT 636
+#define SMALL_SCREEN_FIXED_HEIGHT 400
 
 #define MIN_ICON_VIEW_HEIGHT 300
 
-enum
-{
-  OVERVIEW_PAGE,
-  SEARCH_PAGE,
-  CAPPLET_PAGE
-};
-
+typedef enum {
+	SMALL_SCREEN_UNSET,
+	SMALL_SCREEN_TRUE,
+	SMALL_SCREEN_FALSE
+} CcSmallScreen;
 
 struct _GnomeControlCenterPrivate
 {
@@ -66,6 +67,10 @@ struct _GnomeControlCenterPrivate
   GtkWidget  *notebook;
   GtkWidget  *main_vbox;
   GtkWidget  *scrolled_window;
+  GtkWidget  *search_scrolled;
+  GtkWidget  *current_panel_box;
+  GtkWidget  *current_panel;
+  char       *current_panel_id;
   GtkWidget  *window;
   GtkWidget  *search_entry;
   GtkWidget  *lock_button;
@@ -77,7 +82,6 @@ struct _GnomeControlCenterPrivate
 
   GtkTreeModel *search_filter;
   GtkWidget *search_view;
-  GtkCellRenderer *search_renderer;
   gchar *filter_string;
 
   guint32 last_time;
@@ -86,7 +90,67 @@ struct _GnomeControlCenterPrivate
 
   gchar *default_window_title;
   gchar *default_window_icon;
+
+  int monitor_num;
+  CcSmallScreen small_screen;
 };
+
+/* Notebook helpers */
+static GtkWidget *
+notebook_get_selected_page (GtkWidget *notebook)
+{
+  int curr;
+
+  curr = gtk_notebook_get_current_page (GTK_NOTEBOOK (notebook));
+  if (curr == -1)
+    return NULL;
+  return gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), curr);
+}
+
+static void
+notebook_select_page (GtkWidget *notebook,
+		      GtkWidget *page)
+{
+  int i, num;
+
+  num = gtk_notebook_get_n_pages (GTK_NOTEBOOK (notebook));
+  for (i = 0; i < num; i++)
+    {
+      if (gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), i) == page)
+        {
+          gtk_notebook_set_current_page (GTK_NOTEBOOK (notebook), i);
+          return;
+        }
+    }
+
+  g_warning ("Couldn't select GtkNotebook page %p", page);
+}
+
+static void
+notebook_remove_page (GtkWidget *notebook,
+		      GtkWidget *page)
+{
+  int i, num;
+
+  num = gtk_notebook_get_n_pages (GTK_NOTEBOOK (notebook));
+  for (i = 0; i < num; i++)
+    {
+      if (gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), i) == page)
+        {
+          gtk_notebook_remove_page (GTK_NOTEBOOK (notebook), i);
+          return;
+        }
+    }
+
+  g_warning ("Couldn't find GtkNotebook page to remove %p", page);
+}
+
+static void
+notebook_add_page (GtkWidget *notebook,
+		   GtkWidget *page)
+{
+  gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, NULL);
+}
 
 static const gchar *
 get_icon_name_from_g_icon (GIcon *gicon)
@@ -110,7 +174,7 @@ get_icon_name_from_g_icon (GIcon *gicon)
   return NULL;
 }
 
-static void
+static gboolean
 activate_panel (GnomeControlCenter *shell,
                 const gchar        *id,
 		const gchar       **argv,
@@ -121,84 +185,69 @@ activate_panel (GnomeControlCenter *shell,
   GnomeControlCenterPrivate *priv = shell->priv;
   GType panel_type = G_TYPE_INVALID;
   GList *panels, *l;
+  GtkWidget *box;
+  const gchar *icon_name;
 
   /* check if there is an plugin that implements this panel */
   panels = g_io_extension_point_get_extensions (priv->extension_point);
 
   if (!desktop_file)
-    return;
+    return FALSE;
+  if (!id)
+    return FALSE;
 
-  if (id)
+  for (l = panels; l != NULL; l = l->next)
     {
+      GIOExtension *extension;
+      const gchar *name;
 
-      for (l = panels; l != NULL; l = l->next)
+      extension = l->data;
+
+      name = g_io_extension_get_name (extension);
+
+      if (!g_strcmp0 (name, id))
         {
-          GIOExtension *extension;
-          const gchar *name;
-
-          extension = l->data;
-
-          name = g_io_extension_get_name (extension);
-
-          if (!g_strcmp0 (name, id))
-            {
-              panel_type = g_io_extension_get_type (extension);
-              break;
-            }
-        }
-
-      if (panel_type != G_TYPE_INVALID)
-        {
-          GtkWidget *panel;
-          GtkWidget *box;
-          gint i;
-          int nat_height;
-          const gchar *icon_name;
-
-          /* create the panel plugin */
-          panel = g_object_new (panel_type, "shell", shell, "argv", argv, NULL);
-
-          gtk_lock_button_set_permission (GTK_LOCK_BUTTON (priv->lock_button),
-                                          cc_panel_get_permission (CC_PANEL (panel)));
-
-          box = gtk_alignment_new (0, 0, 1, 1);
-          gtk_alignment_set_padding (GTK_ALIGNMENT (box), 6, 6, 6, 6);
-
-          gtk_container_add (GTK_CONTAINER (box), panel);
-
-          i = gtk_notebook_append_page (GTK_NOTEBOOK (priv->notebook), box,
-                                        NULL);
-
-          /* switch to the new panel */
-          gtk_widget_show (box);
-          gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->notebook), i);
-
-          /* set the title of the window */
-          icon_name = get_icon_name_from_g_icon (gicon);
-          gtk_window_set_title (GTK_WINDOW (priv->window), name);
-          gtk_window_set_default_icon_name (icon_name);
-          gtk_window_set_icon_name (GTK_WINDOW (priv->window), icon_name);
-
-          gtk_widget_show (panel);
-
-          /* set the scrolled window small so that it doesn't force
-             the window to be larger than this panel */
-          gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (priv->scrolled_window), MIN_ICON_VIEW_HEIGHT);
-
-          /* resize to the preferred size of the panel */
-          gtk_widget_set_size_request (priv->window, FIXED_WIDTH, -1);
-          gtk_widget_get_preferred_height (GTK_WIDGET (priv->window),
-                                           NULL, &nat_height);
-          gtk_window_resize (GTK_WINDOW (priv->window),
-                             FIXED_WIDTH,
-                             nat_height);
-          return;
-        }
-      else
-        {
-          g_warning ("Could not find the loadable module for panel '%s'", id);
+          panel_type = g_io_extension_get_type (extension);
+          break;
         }
     }
+
+  if (panel_type == G_TYPE_INVALID)
+    {
+      g_warning ("Could not find the loadable module for panel '%s'", id);
+      return FALSE;
+    }
+
+  /* create the panel plugin */
+  priv->current_panel = g_object_new (panel_type, "shell", shell, "argv", argv, NULL);
+  cc_shell_set_active_panel (CC_SHELL (shell), CC_PANEL (priv->current_panel));
+  gtk_widget_show (priv->current_panel);
+
+  gtk_lock_button_set_permission (GTK_LOCK_BUTTON (priv->lock_button),
+                                  cc_panel_get_permission (CC_PANEL (priv->current_panel)));
+
+  box = gtk_alignment_new (0, 0, 1, 1);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (box), 6, 6, 6, 6);
+
+  gtk_container_add (GTK_CONTAINER (box), priv->current_panel);
+
+  gtk_widget_set_name (box, id);
+  notebook_add_page (priv->notebook, box);
+
+  /* switch to the new panel */
+  gtk_widget_show (box);
+  notebook_select_page (priv->notebook, box);
+
+  /* set the title of the window */
+  icon_name = get_icon_name_from_g_icon (gicon);
+  gtk_window_set_role (GTK_WINDOW (priv->window), id);
+  gtk_window_set_title (GTK_WINDOW (priv->window), name);
+  gtk_window_set_default_icon_name (icon_name);
+  gtk_window_set_icon_name (GTK_WINDOW (priv->window), icon_name);
+
+  priv->current_panel_box = box;
+
+  return TRUE;
 }
 
 static void
@@ -219,11 +268,17 @@ _shell_remove_all_custom_widgets (GnomeControlCenterPrivate *priv)
 }
 
 static void
-shell_show_overview_page (GnomeControlCenterPrivate *priv)
+shell_show_overview_page (GnomeControlCenter *center)
 {
-  gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->notebook), OVERVIEW_PAGE);
+  GnomeControlCenterPrivate *priv = center->priv;
 
-  gtk_notebook_remove_page (GTK_NOTEBOOK (priv->notebook), CAPPLET_PAGE);
+  notebook_select_page (priv->notebook, priv->scrolled_window);
+
+  if (priv->current_panel_box)
+    notebook_remove_page (priv->notebook, priv->current_panel_box);
+  priv->current_panel = NULL;
+  priv->current_panel_box = NULL;
+  g_clear_pointer (&priv->current_panel_id, g_free);
 
   /* clear the search text */
   g_free (priv->filter_string);
@@ -234,10 +289,13 @@ shell_show_overview_page (GnomeControlCenterPrivate *priv)
   gtk_lock_button_set_permission (GTK_LOCK_BUTTON (priv->lock_button), NULL);
 
   /* reset window title and icon */
+  gtk_window_set_role (GTK_WINDOW (priv->window), NULL);
   gtk_window_set_title (GTK_WINDOW (priv->window), priv->default_window_title);
   gtk_window_set_default_icon_name (priv->default_window_icon);
   gtk_window_set_icon_name (GTK_WINDOW (priv->window),
                             priv->default_window_icon);
+
+  cc_shell_set_active_panel (CC_SHELL (center), NULL);
 
   /* clear any custom widgets */
   _shell_remove_all_custom_widgets (priv);
@@ -246,7 +304,7 @@ shell_show_overview_page (GnomeControlCenterPrivate *priv)
 void
 gnome_control_center_set_overview_page (GnomeControlCenter *center)
 {
-  shell_show_overview_page (center->priv);
+  shell_show_overview_page (center);
 }
 
 static void
@@ -308,6 +366,8 @@ get_item_views (GnomeControlCenter *shell)
   res = NULL;
   for (l = list; l; l = l->next)
     {
+      if (!CC_IS_SHELL_CATEGORY_VIEW (l->data))
+        continue;
       res = g_list_append (res, cc_shell_category_view_get_item_view (CC_SHELL_CATEGORY_VIEW (l->data)));
     }
 
@@ -496,9 +556,10 @@ category_filter_func (GtkTreeModel *model,
 }
 
 static void
-search_entry_changed_cb (GtkEntry                  *entry,
-                         GnomeControlCenterPrivate *priv)
+search_entry_changed_cb (GtkEntry           *entry,
+                         GnomeControlCenter *center)
 {
+  GnomeControlCenterPrivate *priv = center->priv;
   char *str;
 
   /* if the entry text was set manually (not by the user) */
@@ -517,29 +578,14 @@ search_entry_changed_cb (GtkEntry                  *entry,
   g_free (priv->filter_string);
   priv->filter_string = str;
 
-  g_object_set (priv->search_renderer,
-                "search-string", priv->filter_string,
-                NULL);
-
   if (!g_strcmp0 (priv->filter_string, ""))
     {
-      shell_show_overview_page (priv);
-      g_object_set (G_OBJECT (entry),
-                    "secondary-icon-name", "edit-find-symbolic",
-                    "secondary-icon-activatable", FALSE,
-                    "secondary-icon-sensitive", FALSE,
-                    NULL);
+      shell_show_overview_page (center);
     }
   else
     {
       gtk_tree_model_filter_refilter (GTK_TREE_MODEL_FILTER (priv->search_filter));
-      gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->notebook),
-                                     SEARCH_PAGE);
-      g_object_set (G_OBJECT (entry),
-                          "secondary-icon-name", "edit-clear-symbolic",
-                          "secondary-icon-activatable", TRUE,
-                          "secondary-icon-sensitive", TRUE,
-                          NULL);
+      notebook_select_page (priv->notebook, priv->search_scrolled);
     }
 }
 
@@ -572,17 +618,34 @@ search_entry_key_press_event_cb (GtkEntry    *entry,
 }
 
 static void
-search_entry_clear_cb (GtkEntry *entry)
+on_search_selection_changed (GtkTreeSelection   *selection,
+                             GnomeControlCenter *shell)
 {
-  gtk_entry_set_text (entry, "");
-}
+  GtkTreeModel *model;
+  GtkTreeIter   iter;
+  char         *id = NULL;
 
+  if (!gtk_tree_selection_get_selected (selection, &model, &iter))
+    return;
+
+  gtk_tree_model_get (model, &iter,
+                      COL_ID, &id,
+                      -1);
+
+  if (id)
+    cc_shell_set_active_panel_from_id (CC_SHELL (shell), id, NULL, NULL);
+
+  gtk_tree_selection_unselect_all (selection);
+
+  g_free (id);
+}
 
 static void
 setup_search (GnomeControlCenter *shell)
 {
-  GtkWidget *search_scrolled, *search_view, *widget;
+  GtkWidget *search_view, *widget;
   GtkCellRenderer *renderer;
+  GtkTreeViewColumn *column;
   GnomeControlCenterPrivate *priv = shell->priv;
 
   g_return_if_fail (priv->store != NULL);
@@ -593,43 +656,55 @@ setup_search (GnomeControlCenter *shell)
 
   gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER (priv->search_filter),
                                           (GtkTreeModelFilterVisibleFunc)
-                                            model_filter_func,
+                                          model_filter_func,
                                           priv, NULL);
 
   /* set up the search view */
-  priv->search_view = search_view = cc_shell_item_view_new ();
-  gtk_icon_view_set_item_orientation (GTK_ICON_VIEW (search_view),
-                                      GTK_ORIENTATION_HORIZONTAL);
-  gtk_icon_view_set_spacing (GTK_ICON_VIEW (search_view), 6);
-  gtk_icon_view_set_model (GTK_ICON_VIEW (search_view),
+  priv->search_view = search_view = gtk_tree_view_new ();
+  gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (search_view), FALSE);
+  gtk_tree_view_set_model (GTK_TREE_VIEW (search_view),
                            GTK_TREE_MODEL (priv->search_filter));
 
   renderer = gtk_cell_renderer_pixbuf_new ();
   g_object_set (renderer,
                 "follow-state", TRUE,
+                "xpad", 15,
+                "ypad", 10,
+                "stock-size", GTK_ICON_SIZE_DIALOG,
                 NULL);
-  gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (search_view),
-                              renderer, FALSE);
-  gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (search_view), renderer,
-                                 "pixbuf", COL_PIXBUF);
+  column = gtk_tree_view_column_new_with_attributes ("Icon", renderer,
+                                                     "gicon", COL_GICON,
+                                                     NULL);
+  gtk_tree_view_column_set_expand (column, FALSE);
+  gtk_tree_view_append_column (GTK_TREE_VIEW (priv->search_view), column);
 
-  search_scrolled = W (priv->builder, "search-scrolled-window");
-  gtk_container_add (GTK_CONTAINER (search_scrolled), search_view);
+  renderer = gtk_cell_renderer_text_new ();
+  g_object_set (renderer,
+                "xpad", 0,
+                NULL);
+  column = gtk_tree_view_column_new_with_attributes ("Name", renderer,
+                                                     "text", COL_NAME,
+                                                     NULL);
+  gtk_tree_view_column_set_expand (column, FALSE);
+  gtk_tree_view_append_column (GTK_TREE_VIEW (priv->search_view), column);
 
-  /* add the custom renderer */
-  priv->search_renderer = (GtkCellRenderer*) shell_search_renderer_new ();
-  gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (search_view),
-                              priv->search_renderer, TRUE);
-  gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (search_view),
-                                 priv->search_renderer,
-                                 "title", COL_NAME);
-  gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (search_view),
-                                 priv->search_renderer,
-                                 "search-target", COL_DESCRIPTION);
+  renderer = gtk_cell_renderer_text_new ();
+  g_object_set (renderer,
+                "xpad", 15,
+                NULL);
+  column = gtk_tree_view_column_new_with_attributes ("Description", renderer,
+                                                     "text", COL_DESCRIPTION,
+                                                     NULL);
+  gtk_tree_view_column_set_expand (column, TRUE);
+  gtk_tree_view_append_column (GTK_TREE_VIEW (priv->search_view), column);
 
-  /* connect the activated signal */
-  g_signal_connect (search_view, "desktop-item-activated",
-                    G_CALLBACK (item_activated_cb), shell);
+  priv->search_scrolled = W (priv->builder, "search-scrolled-window");
+  gtk_container_add (GTK_CONTAINER (priv->search_scrolled), search_view);
+
+  g_signal_connect (gtk_tree_view_get_selection (GTK_TREE_VIEW (priv->search_view)),
+                    "changed",
+                    G_CALLBACK (on_search_selection_changed),
+                    shell);
 
   /* setup the search entry widget */
   widget = (GtkWidget*) gtk_builder_get_object (priv->builder, "search-entry");
@@ -637,12 +712,9 @@ setup_search (GnomeControlCenter *shell)
   priv->filter_string = g_strdup ("");
 
   g_signal_connect (widget, "changed", G_CALLBACK (search_entry_changed_cb),
-                    priv);
+                    shell);
   g_signal_connect (widget, "key-press-event",
                     G_CALLBACK (search_entry_key_press_event_cb), priv);
-
-  g_signal_connect (widget, "icon-release", G_CALLBACK (search_entry_clear_cb),
-                    priv);
 
   gtk_widget_show (priv->search_view);
 }
@@ -664,6 +736,16 @@ maybe_add_category_view (GnomeControlCenter *shell,
 
   if (g_hash_table_lookup (shell->priv->category_views, name) != NULL)
     return;
+
+  if (g_hash_table_size (shell->priv->category_views) > 0)
+    {
+      GtkWidget *separator;
+      separator = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
+      gtk_widget_set_margin_top (separator, 11);
+      gtk_widget_set_margin_bottom (separator, 10);
+      gtk_box_pack_start (GTK_BOX (shell->priv->main_vbox), separator, FALSE, FALSE, 0);
+      gtk_widget_show (separator);
+    }
 
   /* create new category view for this category */
   filter = gtk_tree_model_filter_new (GTK_TREE_MODEL (shell->priv->store),
@@ -763,7 +845,10 @@ setup_model (GnomeControlCenter *shell)
 {
   GnomeControlCenterPrivate *priv = shell->priv;
 
-  gtk_container_set_border_width (GTK_CONTAINER (shell->priv->main_vbox), 10);
+  gtk_widget_set_margin_top (shell->priv->main_vbox, 8);
+  gtk_widget_set_margin_bottom (shell->priv->main_vbox, 8);
+  gtk_widget_set_margin_left (shell->priv->main_vbox, 12);
+  gtk_widget_set_margin_right (shell->priv->main_vbox, 12);
   gtk_container_set_focus_vadjustment (GTK_CONTAINER (shell->priv->main_vbox),
                                        gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (shell->priv->scrolled_window)));
 
@@ -804,29 +889,44 @@ static void
 home_button_clicked_cb (GtkButton *button,
                         GnomeControlCenter *shell)
 {
-  shell_show_overview_page (shell->priv);
+  shell_show_overview_page (shell);
 }
 
 static void
-notebook_switch_page_cb (GtkNotebook               *book,
-                         GtkWidget                 *child,
-                         gint                       page_num,
+notebook_page_notify_cb (GtkNotebook              *notebook,
+			 GParamSpec               *spec,
                          GnomeControlCenterPrivate *priv)
 {
+  int nat_height;
+  GtkWidget *child;
+
+  child = notebook_get_selected_page (GTK_WIDGET (notebook));
+
   /* make sure the home button is shown on all pages except the overview page */
 
-  if (page_num == OVERVIEW_PAGE || page_num == SEARCH_PAGE)
+  if (child == priv->scrolled_window || child == priv->search_scrolled)
     {
       gtk_widget_hide (W (priv->builder, "home-button"));
       gtk_widget_show (W (priv->builder, "search-entry"));
       gtk_widget_hide (W (priv->builder, "lock-button"));
-      gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (priv->scrolled_window), FIXED_HEIGHT - 50);
+
+      gtk_widget_get_preferred_height_for_width (GTK_WIDGET (priv->main_vbox),
+                                                 FIXED_WIDTH, NULL, &nat_height);
+      gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (priv->scrolled_window),
+                                                  priv->small_screen == SMALL_SCREEN_TRUE ? SMALL_SCREEN_FIXED_HEIGHT : nat_height);
     }
   else
     {
       gtk_widget_show (W (priv->builder, "home-button"));
       gtk_widget_hide (W (priv->builder, "search-entry"));
+      /* set the scrolled window small so that it doesn't force
+         the window to be larger than this panel */
+      gtk_widget_get_preferred_height_for_width (GTK_WIDGET (priv->window),
+                                                 FIXED_WIDTH, NULL, &nat_height);
       gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (priv->scrolled_window), MIN_ICON_VIEW_HEIGHT);
+      gtk_window_resize (GTK_WINDOW (priv->window),
+                         FIXED_WIDTH,
+                         nat_height);
     }
 }
 
@@ -854,9 +954,19 @@ _shell_set_active_panel_from_id (CcShell      *shell,
   GtkTreeIter iter;
   gboolean iter_valid;
   gchar *name = NULL;
-  gchar *desktop;
-  GIcon *gicon;
+  gchar *desktop = NULL;
+  GIcon *gicon = NULL;
   GnomeControlCenterPrivate *priv = GNOME_CONTROL_CENTER (shell)->priv;
+  GtkWidget *old_panel;
+
+  /* When loading the same panel again, just set the argv */
+  if (g_strcmp0 (priv->current_panel_id, start_id) == 0)
+    {
+      g_object_set (G_OBJECT (priv->current_panel), "argv", argv, NULL);
+      return TRUE;
+    }
+
+  g_clear_pointer (&priv->current_panel_id, g_free);
 
   /* clear any custom widgets */
   _shell_remove_all_custom_widgets (priv);
@@ -891,6 +1001,8 @@ _shell_set_active_panel_from_id (CcShell      *shell,
 
           name = NULL;
           id = NULL;
+          desktop = NULL;
+          gicon = NULL;
         }
 
       iter_valid = gtk_tree_model_iter_next (GTK_TREE_MODEL (priv->store),
@@ -900,22 +1012,28 @@ _shell_set_active_panel_from_id (CcShell      *shell,
   if (!name)
     {
       g_warning ("Could not find settings panel \"%s\"", start_id);
-      return FALSE;
+    }
+  else if (activate_panel (GNOME_CONTROL_CENTER (shell), start_id, argv, desktop,
+                           name, gicon) == FALSE)
+    {
+      /* Failed to activate the panel for some reason */
+      old_panel = priv->current_panel_box;
+      priv->current_panel_box = NULL;
+      notebook_select_page (priv->notebook, priv->scrolled_window);
+      if (old_panel)
+        notebook_remove_page (priv->notebook, old_panel);
     }
   else
     {
-      gtk_notebook_remove_page (GTK_NOTEBOOK (priv->notebook), CAPPLET_PAGE);
-
-      activate_panel (GNOME_CONTROL_CENTER (shell), start_id, argv, desktop,
-		      name, gicon);
-
-      g_free (name);
-      g_free (desktop);
-      if (gicon)
-	g_object_unref (gicon);
-
-      return TRUE;
+      priv->current_panel_id = g_strdup (start_id);
     }
+
+  g_free (name);
+  g_free (desktop);
+  if (gicon)
+    g_object_unref (gicon);
+
+  return TRUE;
 }
 
 static GtkWidget *
@@ -956,6 +1074,8 @@ gnome_control_center_dispose (GObject *object)
 {
   GnomeControlCenterPrivate *priv = GNOME_CONTROL_CENTER (object)->priv;
 
+  g_free (priv->current_panel_id);
+
   if (priv->custom_widgets)
     {
       g_ptr_array_unref (priv->custom_widgets);
@@ -970,7 +1090,6 @@ gnome_control_center_dispose (GObject *object)
       priv->notebook = NULL;
       priv->search_entry = NULL;
       priv->search_view = NULL;
-      priv->search_renderer = NULL;
     }
 
   if (priv->builder)
@@ -1056,12 +1175,20 @@ window_key_press_event (GtkWidget          *win,
 			GdkEventKey        *event,
 			GnomeControlCenter *self)
 {
+  GdkKeymap *keymap;
   gboolean retval;
+  GdkModifierType state;
+
+  if (event->state == 0)
+    return FALSE;
 
   retval = FALSE;
+  state = event->state;
+  keymap = gdk_keymap_get_default ();
+  gdk_keymap_add_virtual_modifiers (keymap, &state);
+  state = state & gtk_accelerator_get_default_mod_mask ();
 
-  if (event->state != 0 &&
-      (event->state & GDK_CONTROL_MASK))
+  if (state == GDK_CONTROL_MASK)
     {
       switch (event->keyval)
         {
@@ -1082,8 +1209,8 @@ window_key_press_event (GtkWidget          *win,
             break;
           case GDK_KEY_W:
           case GDK_KEY_w:
-            if (gtk_notebook_get_current_page (GTK_NOTEBOOK (self->priv->notebook)) != OVERVIEW_PAGE)
-              shell_show_overview_page (self->priv);
+            if (notebook_get_selected_page (self->priv->notebook) != self->priv->scrolled_window)
+              shell_show_overview_page (self);
             retval = TRUE;
             break;
         }
@@ -1091,13 +1218,134 @@ window_key_press_event (GtkWidget          *win,
   return retval;
 }
 
+static gint
+get_monitor_height (GnomeControlCenter *self)
+{
+  GdkScreen *screen;
+  GdkRectangle rect;
+
+  /* We cannot use workarea here, as this wouldn't
+   * be updated when we read it after a monitors-changed signal */
+  screen = gtk_widget_get_screen (self->priv->window);
+  gdk_screen_get_monitor_geometry (screen, self->priv->monitor_num, &rect);
+
+  return rect.height;
+}
+
+static gboolean
+update_monitor_number (GnomeControlCenter *self)
+{
+  gboolean changed = FALSE;
+  GtkWidget *widget;
+  GdkScreen *screen;
+  GdkWindow *window;
+  int monitor;
+
+  widget = self->priv->window;
+
+  window = gtk_widget_get_window (widget);
+  screen = gtk_widget_get_screen (widget);
+  monitor = gdk_screen_get_monitor_at_window (screen, window);
+  if (self->priv->monitor_num != monitor)
+    {
+      self->priv->monitor_num = monitor;
+      changed = TRUE;
+    }
+
+  return changed;
+}
+
+static CcSmallScreen
+is_small (GnomeControlCenter *self)
+{
+  if (get_monitor_height (self) <= FIXED_HEIGHT)
+    return SMALL_SCREEN_TRUE;
+  return SMALL_SCREEN_FALSE;
+}
+
+static void
+update_small_screen_settings (GnomeControlCenter *self)
+{
+  CcSmallScreen small;
+
+  update_monitor_number (self);
+  small = is_small (self);
+
+  if (small == SMALL_SCREEN_TRUE)
+    {
+      gtk_window_set_resizable (GTK_WINDOW (self->priv->window), TRUE);
+
+      if (self->priv->small_screen != small)
+        gtk_window_maximize (GTK_WINDOW (self->priv->window));
+    }
+  else
+    {
+      if (self->priv->small_screen != small)
+        gtk_window_unmaximize (GTK_WINDOW (self->priv->window));
+
+      gtk_window_set_resizable (GTK_WINDOW (self->priv->window), FALSE);
+    }
+
+  self->priv->small_screen = small;
+
+  /* And update the minimum sizes */
+  notebook_page_notify_cb (GTK_NOTEBOOK (self->priv->notebook), NULL, self->priv);
+}
+
+static gboolean
+main_window_configure_cb (GtkWidget *widget,
+                          GdkEvent  *event,
+                          GnomeControlCenter *self)
+{
+  update_small_screen_settings (self);
+  return FALSE;
+}
+
+static void
+application_set_cb (GObject    *object,
+                    GParamSpec *pspec,
+                    GnomeControlCenter *self)
+{
+  /* update small screen settings now - to avoid visible resizing, we want
+   * to do it before showing the window, and GtkApplicationWindow cannot be
+   * realized unless its application property has been set */
+  if (gtk_window_get_application (GTK_WINDOW (self->priv->window)))
+    {
+      gtk_widget_realize (self->priv->window);
+      update_small_screen_settings (self);
+    }
+}
+
+static void
+monitors_changed_cb (GdkScreen *screen,
+                     GnomeControlCenter *self)
+{
+  /* We reset small_screen_set to make sure that the
+   * window gets maximised if need be, in update_small_screen_settings() */
+  self->priv->small_screen = SMALL_SCREEN_UNSET;
+  update_small_screen_settings (self);
+}
+
 static void
 gnome_control_center_init (GnomeControlCenter *self)
 {
   GError *err = NULL;
   GnomeControlCenterPrivate *priv;
+  GdkScreen *screen;
+  GtkWidget *frame;
 
   priv = self->priv = CONTROL_CENTER_PRIVATE (self);
+
+#ifdef HAVE_CHEESE
+  if (gtk_clutter_init (NULL, NULL) != CLUTTER_INIT_SUCCESS)
+    {
+      g_critical ("Clutter-GTK init failed");
+      return;
+    }
+#endif /* HAVE_CHEESE */
+
+  priv->monitor_num = -1;
+  self->priv->small_screen = SMALL_SCREEN_UNSET;
 
   /* load the user interface */
   priv->builder = gtk_builder_new ();
@@ -1112,16 +1360,29 @@ gnome_control_center_init (GnomeControlCenter *self)
 
   /* connect various signals */
   priv->window = W (priv->builder, "main-window");
+  gtk_window_set_hide_titlebar_when_maximized (GTK_WINDOW (priv->window), TRUE);
+  screen = gtk_widget_get_screen (priv->window);
+  g_signal_connect (screen, "monitors-changed", G_CALLBACK (monitors_changed_cb), self);
+  g_signal_connect (priv->window, "configure-event", G_CALLBACK (main_window_configure_cb), self);
+  g_signal_connect (priv->window, "notify::application", G_CALLBACK (application_set_cb), self);
   g_signal_connect_swapped (priv->window, "delete-event", G_CALLBACK (g_object_unref), self);
-  g_signal_connect (priv->window, "key_press_event",
-                    G_CALLBACK (window_key_press_event), self);
+  g_signal_connect_after (priv->window, "key_press_event",
+                          G_CALLBACK (window_key_press_event), self);
 
   priv->notebook = W (priv->builder, "notebook");
+
+  /* Main scrolled window */
   priv->scrolled_window = W (priv->builder, "scrolledwindow1");
+
   gtk_widget_set_size_request (priv->scrolled_window, FIXED_WIDTH, -1);
   priv->main_vbox = W (priv->builder, "main-vbox");
-  g_signal_connect (priv->notebook, "switch-page",
-                    G_CALLBACK (notebook_switch_page_cb), priv);
+  g_signal_connect (priv->notebook, "notify::page",
+                    G_CALLBACK (notebook_page_notify_cb), priv);
+
+  /* Set the alignment for the home button */
+  frame = W(priv->builder, "home-aspect-frame");
+  if (gtk_widget_get_direction (frame) == GTK_TEXT_DIR_RTL)
+    g_object_set (frame, "xalign", 1.0, NULL);
 
   g_signal_connect (gtk_builder_get_object (priv->builder, "home-button"),
                     "clicked", G_CALLBACK (home_button_clicked_cb), self);
@@ -1144,7 +1405,7 @@ gnome_control_center_init (GnomeControlCenter *self)
   priv->default_window_title = g_strdup (gtk_window_get_title (GTK_WINDOW (priv->window)));
   priv->default_window_icon = g_strdup (gtk_window_get_icon_name (GTK_WINDOW (priv->window)));
 
-  notebook_switch_page_cb (NULL, NULL, OVERVIEW_PAGE, priv);
+  notebook_page_notify_cb (GTK_NOTEBOOK (priv->notebook), NULL, priv);
 }
 
 GnomeControlCenter *

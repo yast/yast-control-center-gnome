@@ -38,6 +38,20 @@ G_BEGIN_DECLS
 #define CC_IS_PANEL_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), CC_TYPE_PANEL))
 #define CC_PANEL_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), CC_TYPE_PANEL, CcPanelClass))
 
+/*•
+ * Utility macro used to register panels
+ *
+ * use: CC_PANEL_REGISTER (PluginName, plugin_name)
+ */
+#define CC_PANEL_REGISTER(PluginName, plugin_name)                             \
+        G_DEFINE_DYNAMIC_TYPE (PluginName,                                     \
+                               plugin_name,                                    \
+                               CC_TYPE_PANEL)                                  \
+static void                                                                    \
+plugin_name##_class_finalize (PluginName##Class *plugin_name##_class)          \
+{                                                                              \
+}
+
 typedef struct CcPanelPrivate CcPanelPrivate;
 
 typedef struct _CcPanel       CcPanel;
@@ -68,6 +82,7 @@ struct _CcPanelClass
   GtkBinClass parent_class;
 
   GPermission * (* get_permission) (CcPanel *panel);
+  const char  * (* get_help_uri)   (CcPanel *panel);
 };
 
 GType        cc_panel_get_type         (void);
@@ -75,6 +90,8 @@ GType        cc_panel_get_type         (void);
 CcShell*     cc_panel_get_shell        (CcPanel     *panel);
 
 GPermission *cc_panel_get_permission   (CcPanel     *panel);
+
+const char  *cc_panel_get_help_uri     (CcPanel     *panel);
 
 G_END_DECLS
 
