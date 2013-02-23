@@ -1,3 +1,15 @@
+2013-02-22  Michael Catanzaro <mike.catanzaro@gmail.com>
+
+	Release 2.30.0
+
+	Update code to gnome-control-center 3.6 branch. Most significant change
+	is bigger sizes for the window and all icons.
+
+	* configure.in.in: now requires x11
+	* src/cut-n-paste/: update code from gnome-control-center
+	* src/{control-center.c,gnome-control-center.c,shell.ui}: rebase on updated code
+	* src/patch/: update patch to current changes
+
 2012-01-11  Vincent Untz  <vuntz@gnome.org>
 
 	Release 2.21.3
