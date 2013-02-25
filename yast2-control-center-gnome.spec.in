@@ -6,7 +6,7 @@ Summary:        YaST2 - Control Center (GNOME version)
 
 License:        GPL-2.0+
 Group:          System/YaST
-Source:         %{name}-%{version}.tar.bz2
+#Source:         %{name}-%{version}.tar.bz2
 BuildRequires:  gcc-c++
 BuildRequires:  pkgconfig
 BuildRequires:  update-desktop-files
