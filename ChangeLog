@@ -1,235 +1,195 @@
-2013-02-22  Michael Catanzaro <mike.catanzaro@gmail.com>
+-------------------------------------------------------------------
+Fri Feb 22 00:00:00 UTC 2013 - mike.catanzaro@gmail.com
 
-	Release 2.30.0
+Release 2.30.0
 
-	Update code to gnome-control-center 3.6 branch. Most significant change
-	is bigger sizes for the window and all icons.
+Update code to gnome-control-center 3.6 branch. Most significant change
+is bigger sizes for the window and all icons.
 
-	* configure.in.in: now requires x11
-	* src/cut-n-paste/: update code from gnome-control-center
-	* src/{control-center.c,gnome-control-center.c,shell.ui}: rebase on updated code
-	* src/patch/: update patch to current changes
+* configure.in.in: now requires x11
+* src/cut-n-paste/: update code from gnome-control-center
+* src/{control-center.c,gnome-control-center.c,shell.ui}: rebase on updated code
+* src/patch/: update patch to current changes
 
-2012-01-11  Vincent Untz  <vuntz@gnome.org>
+-------------------------------------------------------------------
+Wed Jan 11 11:03:11 UTC 2012 - vuntz@opensuse.org
 
-	Release 2.21.3
+- Update to version 2.21.3:
+  + Update gnome-control-center code; this includes:
+    - Window sizing fixes.
+    - Small changes.
+    - Build fixes on recent GNOME.
+- Add new explicit pkgconfig(glib-2.0) BuildRequires, following
+  upstream change.
 
-	Update to gnome-control-center code as of today. This reduces our patch
-	since many non-yast related changes are upstream now.
+-------------------------------------------------------------------
+Fri Sep  2 14:22:30 UTC 2011 - vuntz@opensuse.org
 
-	* VERSION: bump version.
-	* configure.in.in: we require glib >= 2.31.0
-	* src/cut-n-paste/: update code from gnome-control-center.
-	* src/{control-center.c,gnome-control-center.c,shell.ui}: rebase on
-	updated code.
-	* src/patch/: update patch to current changes.
+- Update to version 2.21.2:
+  + Update gnome-control-center code; this includes:
+    - port to the new gnome-menus library
+    - do not display item title twice when searching
+    - add Ctrl+Q as a way to exit the shell
+  + Specify layout in YaST-gnome.menu to avoid alphabetical order.
+- Change pkgconfig(libgnome-menu) BuildRequires to
+  pkgconfig(libgnome-menu-3.0) to use the new gnome-menus library.
 
-2011-09-02  Vincent Untz  <vuntz@gnome.org>
+-------------------------------------------------------------------
+Thu Jul 28 12:23:33 CEST 2011 - vuntz@opensuse.org
 
-	Release 2.21.2
+- Update to version 2.21.1:
+  + Do not depend on libgnome-control-center, which is going
+    private upstream. Instead, keep a local copy of the code.
+- Remove pkgconfig(libgnome-control-center) BuildRequires.
 
-	Update to gnome-control-center code as of today. This includes a port
-	to new gnome-menus API.
+-------------------------------------------------------------------
+Mon Jul 25 12:23:50 CEST 2011 - vuntz@opensuse.org
 
-	* VERSION: bump version.
-	* configure.in.in: look for libgnome-menu-3.0 instead of libgnome-menu.
-	* etc/YaST-gnome.menu: add Layout node to  force the layout we want,
-	instead of relying on alphabetical order.
-	* src/cut-n-paste/: update code from gnome-control-center.
-	* src/{control-center.c,gnome-control-center.c}: rebase on updated code.
-	* src/shell-search-renderer.c: tweak this source file to avoid a crash
-	caused by the fact that yast .desktop files have no Comment key.
-	* src/patch/: update patch to current changes.
+- Update to version 2.21.0:
+  + Port to GNOME 3, based on the code of the gnome-control-center
+    shell.
+- Change pkgconfig() BuildRequires to reflect dependency changes:
+  + Old ones: libslab, unique-1.0.
+  + New ones: gio-unix-2.0, gtk+-3.0, libgnome-control-center,
+    libgnome-menu.
+- Remove gconf schema handling, since there is no gconf schema
+  anymore.
 
-2011-07-28  Vincent Untz  <vuntz@gnome.org>
+-------------------------------------------------------------------
+Tue Apr 26 23:49:06 CEST 2011 - vuntz@opensuse.org
 
-	Release 2.21.1
+- Move to pkgconfig()-style BuildRequires:
+  + Old ones: libslab-devel, libunique-devel.
+  + New ones: libslab, unique-1.0.
+- This fixes the build with GNOME 3.
 
-	Use an internal copy of the libgnome-control-center code since it is
-	going private upstream.
+-------------------------------------------------------------------
+Sat Aug 29 00:59:44 CEST 2009 - vuntz@novell.com
 
-	* VERSION: bump version.
-	* src/cut-n-paste/libgnome-control-center/: internal copy of the
-	libgnome-control-center code.
-	* src/cut-n-paste/shell/: copy of the unpatched shell code fro
-	gnome-control-center. We build a static library without the code we're
-	going to patch. This will make it easier to update to new upstream code
-	later on since we'll simply copy the new code there.
-	* src/{*.[ch],shell.ui}: simply keep the code we patch here.
-	* src/patch/: move gnome-control-center.patch patch there, and add a
-	update-patch.sh script to easily update the patch file.
+- Update to version 2.13.4:
+  + force not using the default handler for gconf errors, to avoid
+    spammy dialog for errors
+  + use the "current" icon theme for yast
+  + move the gconf key to /apps/yast-control-center
+  + synchronize code with code from the shell in
+    gnome-control-center:
+    - use goption
+    - use libunique instead of bonobo
+    - bigger icons
+- Drop yast2-control-center-gnome-no-gconf-error-dialog.patch:
+  now unneeded.
+- Do not call autoreconf.
+- Remove definition of prefix.
+- Drop gnome-main-menu-devel, gnome-menus-devel, libgnomeui-devel
+  BuildRequires.
+- Add libslab-devel and libunique-devel BuildRequires.
+- Drop gnome-main-menu, libgnomesu Requires.
+- Use spec-cleaner script:
+  + reorder lines in preamble.
+  + remove AutoReqProv: it's default now.
+  + use makeinstall macro.
 
-2011-07-25  Vincent Untz  <vuntz@gnome.org>
+-------------------------------------------------------------------
+Sat Jan 31 02:06:06 CET 2009 - vuntz@novell.com
 
-	Release 2.21.0
+- Add yast2-control-center-gnome-no-gconf-error-dialog.patch: fix
+  the error dialog popping up when run under "su" (not "su -"). Fix
+  bnc#448398, bnc#470714 and probably a few others.
 
-	Completely rewrite: this is now a fork of the shell of
-	gnome-control-center in GNOME 3. The code should be kept in sync with
-	the upstream code; gnome-control-center.patch can be used as a basis for
-	this.
+-------------------------------------------------------------------
+Fri Jan 30 15:40:01 CET 2009 - vuntz@novell.com
 
-	* VERSION: bump version.
-	* gnome-control-center.patch: patch that is applied to the
-	gnome-control-center shell to get the code in src/.
-	* configure.in.in: update dependencies (gconf-2.0, libslab, unique-1.0
-	are gone, we now depend on gio-unix-2.0, gtk+-3.0,
-	libgnome-control-center, libgnome-menu).
-	* etc/yast2-control-center-gnome.schemas.in, etc/Makefile.am: drop gconf
-	schema, since we don't use it anymore.
-	* src/*: everything is changed.
+- Review BuildRequires.
 
-2010-03-28  Cong Meng <cmeng@novell.com>
+-------------------------------------------------------------------
+Tue Sep 23 23:58:36 CEST 2008 - mauro@suse.de
 
-    Add a new category High Availability. (bnc #575787)
+- Fix Requires, now asks for libgnomesu 
+  * Fixes bnc#388586
 
-2009-08-29  Vincent Untz  <vuntz@gnome.org>
+-------------------------------------------------------------------
+Mon May 12 14:07:26 CEST 2008 - mmichael@suse.de
 
-	Release 2.13.4
-	Note that there'll be no tag in svn, as apparently this module doesn't
-	use this. But this commit can be used to identify the release.
+- Update to version 2.13.3:
+  * Fix random -S parameter from yast2 shell script wrapper
+    (bnc#389069) 
 
-	* VERSION: bump version
+-------------------------------------------------------------------
+Thu Mar 20 10:31:36 CET 2008 - vuntz@suse.de
 
-2009-08-08  Vincent Untz  <vuntz@gnome.org>
+- Require yast2-control-center. Without this, we don't have
+  YaST.desktop and so the control center doesn't appear in menus.
+  Fix bnc372569.
+- Recompress the source to bz2.
 
-	Synchronize code with code from the shell in gnome-control-center
-	(although it's not committed there yet).
-	Highlights:
-	 - use goption
-	 - use unique instead of bonobo
-	 - no need for the gconf trick, since we don't use libgnomeui anymore
-	 - bigger icons
-	 - depends on latest libslab
+-------------------------------------------------------------------
+Wed Sep 26 18:59:51 CEST 2007 - sreeves@suse.de
 
-	* configure.in.in: depends on libslab >= 2.27.1
-	* src/Makefile.am: add a few defines
-	* src/control-center.c: big changes :-)
+- Fix for 328615 - untranslated.
 
-2009-08-08  Vincent Untz  <vuntz@gnome.org>
+-------------------------------------------------------------------
+Sat Aug 25 01:17:16 CEST 2007 - sreeves@suse.de
 
-	* etc/yast2-control-center-gnome.schemas.in:
-	* src/control-center.c:
-	Move the gconf key to /apps/yast-control-center. They should never have
-	been in /desktop/gnome/applications/y2cc-gnome
+- Fix for 247684 - remove empty icon hierarchy
+  Fix for 8097 - use new yast window icon
+  Fix for 297243 - change app armor icon name
 
-2009-08-08  Vincent Untz  <vuntz@gnome.org>
+-------------------------------------------------------------------
+Wed May 23 01:41:50 CEST 2007 - sreeves@suse.de
 
-	* src/control-center.c: (main): use the "current" icon theme for yast,
-	instead of NLD.
+- Remove existing X-SuSE-translate from .directory files so
+ suse_update_desktop_file wont error out
 
-2009-01-31  Vincent Untz  <vuntz@gnome.org>
+-------------------------------------------------------------------
+Wed Apr 18 02:20:24 CEST 2007 - sreeves@suse.de
 
-	* src/control-center.c: (main): force not using the default handler for
-	gconf errors. libgnomeui sets one, and when a program is run under "su"
-	(not "su -"), we get gconf errors. And this program is often run under
-	"su", it seems :-)
+- Fix for 245970 - install into y2bindir.
 
-2008-05-12  Michael Meeks  <michael.meeks@novell.com>
+-------------------------------------------------------------------
+Mon Mar 19 23:22:47 CET 2007 - sreeves@suse.de
 
-	* Version 2.13.3
+- Fix for 254718 - additional menu entries
+  Fix for 252799 - merge in additional menu files
 
-	* aclocal.m4: remove auto-generated file.
+-------------------------------------------------------------------
+Tue Mar 13 22:31:42 CET 2007 - sreeves@suse.de
 
-	* src/control-center.c (main): tolerate unknown
-	arguments, like '-S' silently: 389069
+- Roll in all changes from SP1 branch:
+        Fri Mar  9 20:44:02 CET 2007 - sreeves@suse.de
+        - Fix for 250415 - allow different theming for the cc shell
+          Fix for 249717 - change title to "YaST2 Control Center" - use the same string
+            already in yast2-control-center package so we can use existing translations.
+        Tue Mar  6 15:49:05 CET 2007 - cthiel@suse.de
+        - Supplements: gnome-main-menu instead of gnome-desktop
+        Mon Mar  5 15:59:17 CET 2007 - cthiel@suse.de
+        - fix for #240240
+          * Supplements: gnome-desktop
+          * Provides: yast2-control-center-binary
+        Thu Mar  1 00:04:48 CET 2007 - sreeves@suse.de
+        - Call suse_update_desktop_file for all .directory files
+          #247812 will be fixed in yast2.rpm so remove desktop file
+        Thu Feb 22 23:14:26 CET 2007 - sreeves@suse.de
+        - Fix for no desktop file - #247812
+          Includes changes by mmeeks to build project the "standard yast way"
+        Thu Feb  1 23:44:45 CET 2007 - sreeves@suse.de
+        - Fix for BNC #236464 - duplicated items.
+          Fix for gnome.org #395133 - tasks launched twice.
+          Fix for BNC #240242 - no common tasks.
+          Remove .desktop file now that yast2 launches us
 
-2007-09-27  Scott Reeves  <sreeves@novell.com>
-	Fix for 328615 - untranslated because of /opt/gnome to /usr
+-------------------------------------------------------------------
+Wed Jan 17 15:26:12 CET 2007 - sbrabec@suse.cz
 
-2007-05-14  Scott Reeves  <sreeves@novell.com>
-	Fix for 259542 - not translated
-	Fix for 245970 - install into y2bindir.
+- Prefix changed to /usr.
+- Spec file cleanup.
 
-2007-03-19  Scott Reeves  <sreeves@novell.com>
-	* etc/YaST-gnome.menu
-	* etc/yast-gnome-virtualization.directory:
-	Fix for 254718 - additional menu items
+-------------------------------------------------------------------
+Tue Oct 24 17:50:01 CEST 2006 - sreeves@suse.de
 
-2007-03-16  Scott Reeves  <sreeves@novell.com>
-	* etc/YaST-gnome.menu
-	* etc/yast2-control-center-gnome.schemas.in
-	* /src/control-center.c:
-	Fix for 249717 - change icon
-	Fix for 252799 - merge in add on menus
-	Use correct .directory names in menu file
-	schema back to /desktop prefix - main-menu checks for some of it there.
+- Fix to build with new gnome-main-menu
 
-2007-03-12  Scott Reeves  <sreeves@novell.com>
-	* /src/control-center.c:
-	Fix for 250415 - allow different theming for the cc shell
-	Fix for 249717 - change title to "YaST2 Control Center" - use the same string
-	already in yast2-control-center package so we can use existing translations.
+-------------------------------------------------------------------
+Mon Oct  9 13:10:28 CEST 2006 - mmichael@suse.de
 
-2007-02-28  Scott Reeves  <sreeves@novell.com>
-	* /etc/YaST-gnome.desktop.in
-	* /etc/Makefile.am
-	* /etc/yast2-control-center-gnome.schemas.in
-	* /src/control-center.c:
-	Another attempted fix for 240240
-	Update schema file to install in a better gconf prefix and modify
-	strings to exactly match existing ones in g-m-m CC.
-
-2007-02-22  Scott Reeves  <sreeves@novell.com>
-	* etc/YaST-gnome.desktop.in
-	* etc/Makefile.am:
-	Fix up desktop file - BNC #248025 and #240240
-
-2007-02-05  Michael Meeks  <michael.meeks@novell.com>
-
-	* configure.in: remove
-	* autogen.sh: update
-	* POTFILES, MAINTAINER, VERSION, RPMNAME,
-	* configure.in.in, Makefile.cvs: add, do things
-	the 'yast' way.
-
-2007-02-02  Scott Reeves  <sreeves@novell.com>
-	
-	* src/control-center.c
-	  etc/yast2-control-center.schemas.in:
-	Remove default tasks - BNC#240242
-	Update to latest libslab code.
-
-2007-01-26  Scott Reeves  <sreeves@novell.com>
-	
-	* src/control-center.c:
-	Fix for BNC #236464 - duplicated items.
-	Fix for gnome.org #395133 - tasks launched twice.
-	Remove .desktop file now that yast2 launches us
-
-2006-10-30  Scott Reeves  <sreeves@novell.com>
-	
-	* src/control-center.c:
-	Roll in latest updates from gnome-main-menu CC.
-	Fix to build with new gnome-main-menu (2006-10-25 changes)
-
-2006-10-09  Michael Meeks  <michael.meeks@novell.com>
-
-	* Version 1.1.1
-
-	* src/control-center.c (main): add gtk_init to
-	overcome console warnings wrt. display.
-
-	* etc/YaST-gnome.desktop.in: add missing categories
-	so we showup in the app browser, add Root auth bits.
-
-2006-10-06  Michael Meeks  <michael.meeks@novell.com>
-
-	* src/control-center.c: prune bogus includes.
-
-2006-10-06  Michael Meeks  <michael.meeks@novell.com>
-
-	* src/Makefile.am: rename the binary, tweak some
-	strings.
-
-	* etc/Makefile.am (desktop_DATA, schemas_DATA): 
-	rename files to be more verbose & similar to
-	existing yast2 stuff.
-
-2006-10-06  Michael Meeks  <michael.meeks@novell.com>
-
-	* Revision 33253 worked.
-
-2006-10-06  Michael Meeks  <michael.meeks@novell.com>
-
-	* Checkin yast2-control-center-gnome
+- import 1st cut. 
 
