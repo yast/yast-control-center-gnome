@@ -1,5 +1,5 @@
---- ./../cut-n-paste/shell/control-center.c	2013-02-20 16:20:25.061957897 -0600
-+++ ./../control-center.c	2013-02-20 16:31:15.712297122 -0600
+--- ./../cut-n-paste/shell/control-center.c	2013-09-24 16:04:59.229000000 -0500
++++ ./../control-center.c	2013-09-24 16:04:59.227000000 -0500
 @@ -28,7 +28,9 @@
  
  #include <gtk/gtk.h>
@@ -155,8 +155,8 @@
    g_signal_connect (application, "startup",
                      G_CALLBACK (application_startup_cb), shell);
    g_signal_connect (application, "command-line",
---- ./../cut-n-paste/shell/gnome-control-center.c	2013-02-20 16:20:25.061957897 -0600
-+++ ./../gnome-control-center.c	2013-02-21 08:52:19.191814571 -0600
+--- ./../cut-n-paste/shell/gnome-control-center.c	2013-09-24 16:04:59.229000000 -0500
++++ ./../gnome-control-center.c	2013-09-24 16:10:53.058000000 -0500
 @@ -28,7 +28,7 @@
  #include <gtk/gtk.h>
  #include <gdk/gdkkeysyms.h>
@@ -318,7 +318,23 @@
      }
  }
  
-@@ -1282,8 +1323,9 @@
+@@ -959,12 +1000,15 @@
+   GnomeControlCenterPrivate *priv = GNOME_CONTROL_CENTER (shell)->priv;
+   GtkWidget *old_panel;
+ 
++/* bnc#827704 */
++#if 0
+   /* When loading the same panel again, just set the argv */
+   if (g_strcmp0 (priv->current_panel_id, start_id) == 0)
+     {
+       g_object_set (G_OBJECT (priv->current_panel), "argv", argv, NULL);
+       return TRUE;
+     }
++#endif
+ 
+   g_clear_pointer (&priv->current_panel_id, g_free);
+ 
+@@ -1282,8 +1326,9 @@
      {
        if (self->priv->small_screen != small)
          gtk_window_unmaximize (GTK_WINDOW (self->priv->window));
@@ -329,7 +345,7 @@
      }
  
    self->priv->small_screen = small;
-@@ -1336,7 +1378,7 @@
+@@ -1336,7 +1381,7 @@
  
    priv = self->priv = CONTROL_CENTER_PRIVATE (self);
  
@@ -338,7 +354,7 @@
    if (gtk_clutter_init (NULL, NULL) != CLUTTER_INIT_SUCCESS)
      {
        g_critical ("Clutter-GTK init failed");
-@@ -1360,7 +1402,9 @@
+@@ -1360,7 +1405,9 @@
  
    /* connect various signals */
    priv->window = W (priv->builder, "main-window");
@@ -348,7 +364,7 @@
    screen = gtk_widget_get_screen (priv->window);
    g_signal_connect (screen, "monitors-changed", G_CALLBACK (monitors_changed_cb), self);
    g_signal_connect (priv->window, "configure-event", G_CALLBACK (main_window_configure_cb), self);
-@@ -1373,8 +1417,10 @@
+@@ -1373,8 +1420,10 @@
  
    /* Main scrolled window */
    priv->scrolled_window = W (priv->builder, "scrolledwindow1");
@@ -360,8 +376,8 @@
    priv->main_vbox = W (priv->builder, "main-vbox");
    g_signal_connect (priv->notebook, "notify::page",
                      G_CALLBACK (notebook_page_notify_cb), priv);
---- ./../cut-n-paste/shell/shell.ui	2013-02-20 16:20:25.061957897 -0600
-+++ ./../shell.ui	2013-02-20 16:20:25.061957897 -0600
+--- ./../cut-n-paste/shell/shell.ui	2013-09-24 16:04:59.230000000 -0500
++++ ./../shell.ui	2013-09-24 16:04:59.230000000 -0500
 @@ -3,9 +3,9 @@
    <requires lib="gtk+" version="3.0"/>
    <!-- interface-naming-policy project-wide -->
