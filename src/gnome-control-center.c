@@ -1000,12 +1000,15 @@ _shell_set_active_panel_from_id (CcShell      *shell,
   GnomeControlCenterPrivate *priv = GNOME_CONTROL_CENTER (shell)->priv;
   GtkWidget *old_panel;
 
+/* bnc#827704 */
+#if 0
   /* When loading the same panel again, just set the argv */
   if (g_strcmp0 (priv->current_panel_id, start_id) == 0)
     {
       g_object_set (G_OBJECT (priv->current_panel), "argv", argv, NULL);
       return TRUE;
     }
+#endif
 
   g_clear_pointer (&priv->current_panel_id, g_free);
 
