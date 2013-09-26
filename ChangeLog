@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Sep 26 08:14:01 UTC 2013 - lslezak@suse.cz
+
+- fixed repeated start of a Yast module (bnc#827704) (by Michael
+  Catanzaro)
+- 3.0.1
+
+-------------------------------------------------------------------
 Wed Jul 31 14:43:55 UTC 2013 - lslezak@suse.cz
 
 - version 3.0.0
