@@ -1,16 +1,34 @@
-@HEADER-COMMENT@
+#
+# spec file for package yast2-control-center-gnome
+#
+# Copyright (c) 2013 SUSE LINUX Products GmbH, Nuernberg, Germany.
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
 
-@HEADER@
+# Please submit bugfixes or comments via http://bugs.opensuse.org/
+#
+
+Name:           yast2-control-center-gnome
+Version:        3.1.0
+Release:        0
 
 Summary:        YaST2 - Control Center (GNOME version)
 
 License:        GPL-2.0+
 Group:          System/YaST
-#Source:         %{name}-%{version}.tar.bz2
+Source:         %{name}-%{version}.tar.bz2
 BuildRequires:  gcc-c++
 BuildRequires:  pkgconfig
 BuildRequires:  update-desktop-files
 BuildRequires:  yast2-devtools
+BuildRequires:  libtool
 BuildRequires:  pkgconfig(gio-unix-2.0)
 BuildRequires:  pkgconfig(glib-2.0) >= 2.31.0
 BuildRequires:  pkgconfig(gtk+-3.0)
@@ -26,21 +44,17 @@ A nicely GNOME integrated YaST control center, with several new ease of
 use features.
 
 %prep
-%setup -q
+%setup -n %{name}-%{version}
 
 %build
-%configure
-make %{?jobs:-j%jobs}
+%yast_build
 
 %install
-%makeinstall
+%yast_install
 for i in %{buildroot}%{_datadir}/desktop-directories/*.directory; do
    %suse_update_desktop_file "$i"
 done
-mkdir %{buildroot}%{_sysconfdir}/xdg/menus/YaST-gnome-merged
-
-%clean
-rm -rf %{buildroot}
+mkdir -p %{buildroot}%{_sysconfdir}/xdg/menus/YaST-gnome-merged
 
 %files
 %defattr (-, root, root)

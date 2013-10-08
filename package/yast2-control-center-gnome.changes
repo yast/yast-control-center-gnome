@@ -1,0 +1,220 @@
+-------------------------------------------------------------------
+Tue Oct  8 12:53:15 UTC 2013 - jreidinger@suse.com
+
+- Use plain spec file to allow easy rebuild
+- Add Rakefile to provide uniform access needed by CI
+- 3.1.0
+
+-------------------------------------------------------------------
+Thu Sep 26 08:14:01 UTC 2013 - lslezak@suse.cz
+
+- fixed repeated start of a Yast module (bnc#827704) (by Michael
+  Catanzaro)
+- 3.0.1
+
+-------------------------------------------------------------------
+Wed Jul 31 14:43:55 UTC 2013 - lslezak@suse.cz
+
+- version 3.0.0
+
+-------------------------------------------------------------------
+Wed Feb 27 10:06:42 CET 2013 - tgoettlicher@suse.de
+
+- Added dependency to yast2_theme
+- Release 2.23.3
+
+-------------------------------------------------------------------
+Fri Feb 22 00:00:00 UTC 2013 - mike.catanzaro@gmail.com
+
+Release 2.23.0
+
+Update code to gnome-control-center 3.6 branch. Most significant change
+is bigger sizes for the window and all icons.
+
+* configure.in.in: now requires x11
+* src/cut-n-paste/: update code from gnome-control-center
+* src/{control-center.c,gnome-control-center.c,shell.ui}: rebase on updated code
+* src/patch/: update patch to current changes
+
+-------------------------------------------------------------------
+Wed Jan 11 11:03:11 UTC 2012 - vuntz@opensuse.org
+
+- Update to version 2.21.3:
+  + Update gnome-control-center code; this includes:
+    - Window sizing fixes.
+    - Small changes.
+    - Build fixes on recent GNOME.
+- Add new explicit pkgconfig(glib-2.0) BuildRequires, following
+  upstream change.
+
+-------------------------------------------------------------------
+Fri Sep  2 14:22:30 UTC 2011 - vuntz@opensuse.org
+
+- Update to version 2.21.2:
+  + Update gnome-control-center code; this includes:
+    - port to the new gnome-menus library
+    - do not display item title twice when searching
+    - add Ctrl+Q as a way to exit the shell
+  + Specify layout in YaST-gnome.menu to avoid alphabetical order.
+- Change pkgconfig(libgnome-menu) BuildRequires to
+  pkgconfig(libgnome-menu-3.0) to use the new gnome-menus library.
+
+-------------------------------------------------------------------
+Thu Jul 28 12:23:33 CEST 2011 - vuntz@opensuse.org
+
+- Update to version 2.21.1:
+  + Do not depend on libgnome-control-center, which is going
+    private upstream. Instead, keep a local copy of the code.
+- Remove pkgconfig(libgnome-control-center) BuildRequires.
+
+-------------------------------------------------------------------
+Mon Jul 25 12:23:50 CEST 2011 - vuntz@opensuse.org
+
+- Update to version 2.21.0:
+  + Port to GNOME 3, based on the code of the gnome-control-center
+    shell.
+- Change pkgconfig() BuildRequires to reflect dependency changes:
+  + Old ones: libslab, unique-1.0.
+  + New ones: gio-unix-2.0, gtk+-3.0, libgnome-control-center,
+    libgnome-menu.
+- Remove gconf schema handling, since there is no gconf schema
+  anymore.
+
+-------------------------------------------------------------------
+Tue Apr 26 23:49:06 CEST 2011 - vuntz@opensuse.org
+
+- Move to pkgconfig()-style BuildRequires:
+  + Old ones: libslab-devel, libunique-devel.
+  + New ones: libslab, unique-1.0.
+- This fixes the build with GNOME 3.
+
+-------------------------------------------------------------------
+Sat Aug 29 00:59:44 CEST 2009 - vuntz@novell.com
+
+- Update to version 2.13.4:
+  + force not using the default handler for gconf errors, to avoid
+    spammy dialog for errors
+  + use the "current" icon theme for yast
+  + move the gconf key to /apps/yast-control-center
+  + synchronize code with code from the shell in
+    gnome-control-center:
+    - use goption
+    - use libunique instead of bonobo
+    - bigger icons
+- Drop yast2-control-center-gnome-no-gconf-error-dialog.patch:
+  now unneeded.
+- Do not call autoreconf.
+- Remove definition of prefix.
+- Drop gnome-main-menu-devel, gnome-menus-devel, libgnomeui-devel
+  BuildRequires.
+- Add libslab-devel and libunique-devel BuildRequires.
+- Drop gnome-main-menu, libgnomesu Requires.
+- Use spec-cleaner script:
+  + reorder lines in preamble.
+  + remove AutoReqProv: it's default now.
+  + use makeinstall macro.
+
+-------------------------------------------------------------------
+Sat Jan 31 02:06:06 CET 2009 - vuntz@novell.com
+
+- Add yast2-control-center-gnome-no-gconf-error-dialog.patch: fix
+  the error dialog popping up when run under "su" (not "su -"). Fix
+  bnc#448398, bnc#470714 and probably a few others.
+
+-------------------------------------------------------------------
+Fri Jan 30 15:40:01 CET 2009 - vuntz@novell.com
+
+- Review BuildRequires.
+
+-------------------------------------------------------------------
+Tue Sep 23 23:58:36 CEST 2008 - mauro@suse.de
+
+- Fix Requires, now asks for libgnomesu 
+  * Fixes bnc#388586
+
+-------------------------------------------------------------------
+Mon May 12 14:07:26 CEST 2008 - mmichael@suse.de
+
+- Update to version 2.13.3:
+  * Fix random -S parameter from yast2 shell script wrapper
+    (bnc#389069) 
+
+-------------------------------------------------------------------
+Thu Mar 20 10:31:36 CET 2008 - vuntz@suse.de
+
+- Require yast2-control-center. Without this, we don't have
+  YaST.desktop and so the control center doesn't appear in menus.
+  Fix bnc372569.
+- Recompress the source to bz2.
+
+-------------------------------------------------------------------
+Wed Sep 26 18:59:51 CEST 2007 - sreeves@suse.de
+
+- Fix for 328615 - untranslated.
+
+-------------------------------------------------------------------
+Sat Aug 25 01:17:16 CEST 2007 - sreeves@suse.de
+
+- Fix for 247684 - remove empty icon hierarchy
+  Fix for 8097 - use new yast window icon
+  Fix for 297243 - change app armor icon name
+
+-------------------------------------------------------------------
+Wed May 23 01:41:50 CEST 2007 - sreeves@suse.de
+
+- Remove existing X-SuSE-translate from .directory files so
+ suse_update_desktop_file wont error out
+
+-------------------------------------------------------------------
+Wed Apr 18 02:20:24 CEST 2007 - sreeves@suse.de
+
+- Fix for 245970 - install into y2bindir.
+
+-------------------------------------------------------------------
+Mon Mar 19 23:22:47 CET 2007 - sreeves@suse.de
+
+- Fix for 254718 - additional menu entries
+  Fix for 252799 - merge in additional menu files
+
+-------------------------------------------------------------------
+Tue Mar 13 22:31:42 CET 2007 - sreeves@suse.de
+
+- Roll in all changes from SP1 branch:
+        Fri Mar  9 20:44:02 CET 2007 - sreeves@suse.de
+        - Fix for 250415 - allow different theming for the cc shell
+          Fix for 249717 - change title to "YaST2 Control Center" - use the same string
+            already in yast2-control-center package so we can use existing translations.
+        Tue Mar  6 15:49:05 CET 2007 - cthiel@suse.de
+        - Supplements: gnome-main-menu instead of gnome-desktop
+        Mon Mar  5 15:59:17 CET 2007 - cthiel@suse.de
+        - fix for #240240
+          * Supplements: gnome-desktop
+          * Provides: yast2-control-center-binary
+        Thu Mar  1 00:04:48 CET 2007 - sreeves@suse.de
+        - Call suse_update_desktop_file for all .directory files
+          #247812 will be fixed in yast2.rpm so remove desktop file
+        Thu Feb 22 23:14:26 CET 2007 - sreeves@suse.de
+        - Fix for no desktop file - #247812
+          Includes changes by mmeeks to build project the "standard yast way"
+        Thu Feb  1 23:44:45 CET 2007 - sreeves@suse.de
+        - Fix for BNC #236464 - duplicated items.
+          Fix for gnome.org #395133 - tasks launched twice.
+          Fix for BNC #240242 - no common tasks.
+          Remove .desktop file now that yast2 launches us
+
+-------------------------------------------------------------------
+Wed Jan 17 15:26:12 CET 2007 - sbrabec@suse.cz
+
+- Prefix changed to /usr.
+- Spec file cleanup.
+
+-------------------------------------------------------------------
+Tue Oct 24 17:50:01 CEST 2006 - sreeves@suse.de
+
+- Fix to build with new gnome-main-menu
+
+-------------------------------------------------------------------
+Mon Oct  9 13:10:28 CEST 2006 - mmichael@suse.de
+
+- import 1st cut. 
+
