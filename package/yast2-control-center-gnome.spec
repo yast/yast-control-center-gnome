@@ -27,7 +27,7 @@ Source:         %{name}-%{version}.tar.bz2
 BuildRequires:  gcc-c++
 BuildRequires:  pkgconfig
 BuildRequires:  update-desktop-files
-BuildRequires:  yast2-devtools
+BuildRequires:  yast2-devtools >= 3.1.10
 BuildRequires:  libtool
 BuildRequires:  pkgconfig(gio-unix-2.0)
 BuildRequires:  pkgconfig(glib-2.0) >= 2.31.0
