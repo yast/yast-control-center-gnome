@@ -1,7 +1,9 @@
 -------------------------------------------------------------------
 Thu Feb 27 16:19:22 UTC 2014 - fcrozat@suse.com
 
-- Add Support section in YaST control center.
+- Add Support section in YaST control center to make SUSE Customer
+  Center Configuration (yast2-registration.rpm) visible, like in
+  the Qt menu.
 
 -------------------------------------------------------------------
 Wed Nov 13 15:56:18 UTC 2013 - jreidinger@suse.com
