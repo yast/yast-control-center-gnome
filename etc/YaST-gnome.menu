@@ -77,6 +77,13 @@
 		</Include>
 	</Menu>
 	<Menu>
+		<Name>Support</Name>
+		<Directory>yast-gnome-support.directory</Directory>
+		<Include>
+			<Category>X-SuSE-YaST-Support</Category>
+		</Include>
+	</Menu>
+	<Menu>
 		<Name>Misc</Name>
 		<Directory>yast-gnome-misc.directory</Directory>
 		<Include>
@@ -95,6 +102,7 @@
      <Menuname>Security</Menuname>
      <Menuname>Virtualization</Menuname>
      <Menuname>High Availability</Menuname>
+     <Menuname>Support</Menuname>
      <Menuname>Misc</Menuname>
      <Merge type="all" />
    </Layout>
