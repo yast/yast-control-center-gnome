@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri May 30 08:00:43 UTC 2014 - fezhang@suse.com
+
+- Remove redundant icon in search entry (bnc#873641)
+- 3.1.3
+
+-------------------------------------------------------------------
 Thu Feb 27 16:19:22 UTC 2014 - fcrozat@suse.com
 
 - Add Support section in YaST control center to make SUSE Customer

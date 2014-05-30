@@ -16,7 +16,7 @@
 #
 
 Name:           yast2-control-center-gnome
-Version:        3.1.2
+Version:        3.1.3
 Release:        0
 
 Summary:        YaST2 - Control Center (GNOME version)
