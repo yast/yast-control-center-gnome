@@ -16,7 +16,7 @@
 #
 
 Name:           yast2-control-center-gnome
-Version:        3.1.2
+Version:        3.1.3
 Release:        0
 
 Summary:        YaST2 - Control Center (GNOME version)
@@ -58,7 +58,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/xdg/menus/YaST-gnome-merged
 
 %files
 %defattr (-, root, root)
-%doc ChangeLog COPYING README
+%doc COPYING README
 %{_sysconfdir}/xdg/menus/*.menu
 %{_sysconfdir}/xdg/menus/YaST-gnome-merged
 %{_libexecdir}/YaST2/bin/y2controlcenter-gnome
