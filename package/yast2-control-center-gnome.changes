@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Jun  2 07:11:29 UTC 2014 - fezhang@suse.com
+
+- Fix keyboard navigation in the search results (bnc#863950)
+  + The patch is ported from upstream gnome-control-center
+- 3.1.4
+
+-------------------------------------------------------------------
 Fri May 30 08:00:43 UTC 2014 - fezhang@suse.com
 
 - Remove redundant icon in search entry (bnc#873641)
