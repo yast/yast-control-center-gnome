@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Jun 19 11:33:03 UTC 2014 - fezhang@suse.com
+- ellipsize overlong icon texts and add tooltips (bnc#879959)
+- 3.1.5
+
+-------------------------------------------------------------------
 Tue Jun  2 07:11:29 UTC 2014 - fezhang@suse.com
 
 - Fix keyboard navigation in the search results (bnc#863950)
