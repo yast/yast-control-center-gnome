@@ -170,6 +170,7 @@ iconview_query_tooltip_cb (GtkIconView     *icon_view,
                       COL_NAME, &tooltip_text,
                       -1);
   gtk_tooltip_set_text (tooltip, tooltip_text);
+  g_free (tooltip_text);
   return TRUE;
 }
 
