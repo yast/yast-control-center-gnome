@@ -23,6 +23,8 @@
 #include "cc-shell.h"
 #include "cc-shell-model.h"
 
+#include "glib/gi18n.h"
+
 G_DEFINE_TYPE (CcShellCategoryView, cc_shell_category_view, GTK_TYPE_FRAME)
 
 #define SHELL_CATEGORY_VIEW_PRIVATE(o) \
@@ -145,7 +147,7 @@ cc_shell_category_view_constructed (GObject *object)
       GtkWidget *label;
       PangoAttrList *attrs;
 
-      label = gtk_label_new (priv->name);
+      label = gtk_label_new (_(priv->name));
       attrs = pango_attr_list_new ();
       pango_attr_list_insert (attrs, pango_attr_weight_new (PANGO_WEIGHT_BOLD));
       gtk_label_set_attributes (GTK_LABEL (label), attrs);
