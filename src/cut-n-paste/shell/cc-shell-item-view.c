@@ -148,32 +148,6 @@ iconview_item_activated_cb (GtkIconView     *icon_view,
   g_free (id);
 }
 
-gboolean
-iconview_query_tooltip_cb (GtkIconView     *icon_view,
-                           gint             x,
-                           gint             y,
-                           gboolean         keyborad_tip,
-                           GtkTooltip      *tooltip,
-                           CcShellItemView *cc_view)
-{
-  GtkTreeModel *model;
-  GtkTreeIter iter;
-  gchar *tooltip_text;
-
-  if (!gtk_icon_view_get_tooltip_context (GTK_ICON_VIEW (cc_view),
-                                          &x, &y,
-                                          keyborad_tip,
-                                          &model, NULL, &iter))
-    return FALSE;
-
-  gtk_tree_model_get (model, &iter,
-                      COL_NAME, &tooltip_text,
-                      -1);
-  gtk_tooltip_set_text (tooltip, tooltip_text);
-  g_free (tooltip_text);
-  return TRUE;
-}
-
 void
 cc_shell_item_view_update_cells (CcShellItemView *view)
 {
@@ -186,8 +160,7 @@ cc_shell_item_view_update_cells (CcShellItemView *view)
 
 		if (GTK_IS_CELL_RENDERER_TEXT (cell)) {
 			g_object_set (G_OBJECT (cell),
-				      "wrap-mode", PANGO_WRAP_WORD,
-                                      "ellipsize", PANGO_ELLIPSIZE_END,
+				      "wrap-mode", PANGO_WRAP_WORD_CHAR,
 				      NULL);
 			/* We only have one text cell */
 			break;
@@ -226,18 +199,13 @@ cc_shell_item_view_init (CcShellItemView *self)
 {
   self->priv = SHELL_ITEM_VIEW_PRIVATE (self);
 
-  g_object_set (self,
-                "margin", 0,
-                "has-tooltip", TRUE,
-                NULL);
+  g_object_set (self, "margin", 0, NULL);
   g_signal_connect (self, "item-activated",
                     G_CALLBACK (iconview_item_activated_cb), self);
   g_signal_connect (self, "button-press-event",
                     G_CALLBACK (iconview_button_press_event_cb), self);
   g_signal_connect (self, "button-release-event",
                     G_CALLBACK (iconview_button_release_event_cb), self);
-  g_signal_connect (self, "query-tooltip",
-                    G_CALLBACK (iconview_query_tooltip_cb), self);
 }
 
 GtkWidget *
