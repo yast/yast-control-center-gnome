@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Aug  8 13:04:59 UTC 2014 - fezhang@suse.com
+
+- fix the display problem in 800x600 (bnc#889959)
+- 3.1.9
+
+-------------------------------------------------------------------
 Tue Aug  5 05:30:44 UTC 2014 - fezhang@suse.com
 
 - revert ellipsis and tooltip for icon text, and wrap text with

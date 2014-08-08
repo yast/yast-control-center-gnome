@@ -1468,6 +1468,7 @@ gnome_control_center_init (GnomeControlCenter *self)
 
   /* Main scrolled window */
   priv->scrolled_window = W (priv->builder, "scrolledwindow1");
+  update_small_screen_settings (self);
   gtk_widget_set_size_request (priv->scrolled_window, FIXED_WIDTH, priv->small_screen == SMALL_SCREEN_TRUE ? SMALL_SCREEN_FIXED_HEIGHT : YAST_FIXED_HEIGHT);
 #if 0
   gtk_widget_set_size_request (priv->scrolled_window, FIXED_WIDTH, -1);
