@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Directory
 Icon=yast-system
-Name=System
 
 X-SuSE-DocTeamID=ycc_system
-X-SuSE-translate=true
+
+Name=System
 
