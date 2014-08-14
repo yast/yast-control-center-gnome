@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Directory
 Icon=yast-security
-Name=Security and Users
 
 X-SuSE-DocTeamID=ycc_security
-X-SuSE-translate=true
+
+Name=Security and Users
 

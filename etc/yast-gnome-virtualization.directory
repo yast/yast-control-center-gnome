@@ -1,15 +1,20 @@
 [Desktop Entry]
+X-SuSE-DocTeamID=ycc_virtualization
+X-SuSE-DocTeamID=ycc_virtualization
+# X-SuSE-DocTeamID=ycc_Virtualization
 Type=Directory
-Icon=yast-host
-Name=Virtualization
 
-X-KDE-HasReadOnlyMode=true
-X-KDE-Library=yast2
 X-KDE-ModuleType=Library
 X-KDE-RootOnly=true
+X-KDE-HasReadOnlyMode=true
+X-KDE-Library=yast2
 
-X-SuSE-DocTeamID=ycc_virtualization
 X-SuSE-YaST-Group=Virtualization
 X-SuSE-YaST-SortKey=60
-X-SuSE-translate=true
+
+Icon=yast-host
+
+Name=Virtualization
+
+
 

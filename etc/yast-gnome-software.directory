@@ -1,8 +1,9 @@
 [Desktop Entry]
 Type=Directory
 Icon=yast-software
-Name=Software
 
 X-SuSE-DocTeamID=ycc_software
-X-SuSE-translate=true
+
+Name=Software
+
 
