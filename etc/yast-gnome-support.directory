@@ -1,7 +1,8 @@
 [Desktop Entry]
 Type=Directory
 Icon=yast-support
+Name=Support
 
 X-SuSE-DocTeamID=ycc_support
-Name=Support
+X-SuSE-translate=true
 

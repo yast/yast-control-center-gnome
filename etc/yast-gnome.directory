@@ -3,3 +3,4 @@ Name=YaST2 Modules
 Comment=YaST2 Modules
 Type=Directory
 Icon=package_settings
+X-SuSE-translate=true

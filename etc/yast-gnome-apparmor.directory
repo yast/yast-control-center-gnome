@@ -1,7 +1,8 @@
 [Desktop Entry]
 Type=Directory
 Icon=apparmor_app_armor
+Name=Novell AppArmor
 
 X-SuSE-DocTeamID=ycc_apparmor
+X-SuSE-translate=true
 
-Name=Novell AppArmor

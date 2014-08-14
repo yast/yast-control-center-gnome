@@ -1,9 +1,8 @@
 [Desktop Entry]
 Type=Directory
 Icon=yast-network_devices
-
-X-SuSE-DocTeamID=ycc_network_devices
-
 Name=Network Devices
 
+X-SuSE-DocTeamID=ycc_network_devices
+X-SuSE-translate=true
 

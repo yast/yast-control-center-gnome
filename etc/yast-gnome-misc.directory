@@ -1,7 +1,8 @@
 [Desktop Entry]
 Type=Directory
 Icon=yast-misc
+Name=Miscellaneous
 
 X-SuSE-DocTeamID=ycc_misc
-Name=Miscellaneous
+X-SuSE-translate=true
 

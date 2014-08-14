@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Directory
 Icon=yast-network_services
+Name=Network Services
 
 X-SuSE-DocTeamID=ycc_network_services
-
-Name=Network Services
+X-SuSE-translate=true
 
