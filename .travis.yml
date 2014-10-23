@@ -1,0 +1,18 @@
+language: cpp
+compiler:
+    - gcc
+before_install:
+    - curl http://download.opensuse.org/repositories/YaST:/Head:/Travis/xUbuntu_12.04/Release.key | sudo apt-key add -
+    - echo "deb http://download.opensuse.org/repositories/YaST:/Head:/Travis/xUbuntu_12.04/ ./" | sudo tee -a /etc/apt/sources.list
+    # install newer glib (2.34 instead of provided 2.32)
+    - sudo add-apt-repository ppa:ricotz/testing -y
+    - sudo apt-get update -q
+    - sudo apt-get install --no-install-recommends -y yast2-devtools yast2-testsuite libgtk-3-dev libgnome-menu-3-dev libglib2.0-dev 
+    # disable rvm, use system Ruby
+    - rvm reset
+script:
+    - make -f Makefile.cvs
+    - make
+    - sudo make install
+    - make check
+
