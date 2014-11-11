@@ -1,0 +1,16 @@
+language: cpp
+compiler:
+    - gcc
+before_install:
+    # install newer glib (2.34 instead of provided 2.32)
+    - sudo add-apt-repository ppa:ricotz/testing -y
+    # disable rvm, use system Ruby
+    - rvm reset
+    - wget https://raw.githubusercontent.com/yast/yast-devtools/SLE-12-GA/travis-tools/travis_setup.sh
+    - sh ./travis_setup.sh -p "yast2-devtools yast2-testsuite libgtk-3-dev libgnome-menu-3-dev libglib2.0-dev "
+script:
+    - make -f Makefile.cvs
+    - make
+    - sudo make install
+    - make check
+
