@@ -993,7 +993,6 @@ notebook_page_notify_cb (GtkNotebook              *notebook,
       gtk_widget_hide (W (priv->builder, "home-button"));
       gtk_widget_show (W (priv->builder, "search-entry"));
       gtk_widget_hide (W (priv->builder, "lock-button"));
-      gtk_widget_set_size_request (priv->scrolled_window, FIXED_WIDTH, priv->small_screen == SMALL_SCREEN_TRUE ? SMALL_SCREEN_FIXED_HEIGHT : YAST_FIXED_HEIGHT);
       gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (priv->scrolled_window), priv->small_screen == SMALL_SCREEN_TRUE ? SMALL_SCREEN_FIXED_HEIGHT : YAST_FIXED_HEIGHT);
 #if 0
       gtk_widget_get_preferred_height_for_width (GTK_WIDGET (priv->main_vbox),
@@ -1373,7 +1372,6 @@ update_small_screen_settings (GnomeControlCenter *self)
     }
   else
     {
-      gtk_widget_set_size_request (self->priv->scrolled_window, FIXED_WIDTH, YAST_FIXED_HEIGHT);
       if (self->priv->small_screen != small)
         gtk_window_unmaximize (GTK_WINDOW (self->priv->window));
 #if 0
@@ -1470,6 +1468,8 @@ gnome_control_center_init (GnomeControlCenter *self)
 
   /* Main scrolled window */
   priv->scrolled_window = W (priv->builder, "scrolledwindow1");
+  update_small_screen_settings (self);
+  gtk_widget_set_size_request (priv->scrolled_window, FIXED_WIDTH, priv->small_screen == SMALL_SCREEN_TRUE ? SMALL_SCREEN_FIXED_HEIGHT : YAST_FIXED_HEIGHT);
 #if 0
   gtk_widget_set_size_request (priv->scrolled_window, FIXED_WIDTH, -1);
 #endif
