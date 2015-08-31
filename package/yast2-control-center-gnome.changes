@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Aug 31 08:24:09 UTC 2015 - fezhang@suse.com
+
+- Set scroll window size after it's realized. (bsc#893879)
+- 3.1.10
+
+-------------------------------------------------------------------
 Fri Aug  8 13:04:59 UTC 2014 - fezhang@suse.com
 
 - fix the display problem in 800x600 (bnc#889959)
