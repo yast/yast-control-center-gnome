@@ -1,0 +1,58 @@
+# Copyright (C) 2006 SuSE Linux Products GmbH, Nuernberg
+# This file is distributed under the same license as the package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: update-desktop-files-apps\n"
+"POT-Creation-Date: 2016-08-18 14:36+0000\n"
+"PO-Revision-Date: 2016-08-16 13:41\n"
+"Last-Translator: Novell language <language@novell.com>\n"
+"Language-Team: Novell language <language@novell.com>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: /usr/share/applications/YaST2/groups/hardware.desktop
+msgid "Hardware"
+msgstr "Аппаратные средства"
+
+#: /usr/share/applications/YaST2/groups/high_availability.desktop
+msgid "High Availability"
+msgstr "Высокая готовность"
+
+#: /usr/share/applications/YaST2/groups/misc.desktop
+msgid "Miscellaneous"
+msgstr "Разное"
+
+#: /usr/share/applications/YaST2/groups/network_devices.desktop
+msgid "Network Devices"
+msgstr "Сетевые устройства"
+
+#: /usr/share/applications/YaST2/groups/network_services.desktop
+msgid "Network Services"
+msgstr "Сетевые службы"
+
+#: /usr/share/applications/YaST2/groups/security.desktop
+msgid "Security and Users"
+msgstr "Пользователи и безопасность"
+
+#: /usr/share/applications/YaST2/groups/software.desktop
+msgid "Software"
+msgstr "Программное обеспечение"
+
+#: /usr/share/applications/YaST2/groups/support.desktop
+msgid "Support"
+msgstr "Поддержка"
+
+#: /usr/share/applications/YaST2/groups/system.desktop
+msgid "System"
+msgstr "Система"
+
+#: /usr/share/applications/YaST2/groups/virtualization.desktop
+msgid "Virtualization"
+msgstr "Виртуализация"
+
+#: /usr/lib/YaST2/bin/y2controlcenter-gnome/control-center.c:97
+msgid "Administrator Settings"
+msgstr "Настройки администратора"

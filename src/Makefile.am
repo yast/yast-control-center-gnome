@@ -7,7 +7,7 @@ INCLUDES = 						\
 	-I$(top_builddir)/src/cut-n-paste/shell
 
 AM_CPPFLAGS =							\
-	-DGETTEXT_PACKAGE="\"gnome-control-center-2.0\""	\
+	-DGETTEXT_PACKAGE="\"yast2-control-center-gnome\""	\
 	-DGNOMELOCALEDIR="\"$(datadir)/locale\""		\
 	-DYAST_CC_PACKAGE="\"control-center\""			\
 	-DYASTLOCALEDIR="\"$(datadir)/YaST2/locale\""		\
