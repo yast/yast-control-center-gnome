@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Sep 19 08:57:16 UTC 2016 - qzhao@suse.com
+
+- Add yast2-control-center-gnome-translation.patch.
+  Internationalization(bsc#877369).
+
+-------------------------------------------------------------------
 Mon Aug 31 08:24:09 UTC 2015 - fezhang@suse.com
 
 - Set scroll window size after it's realized. (bsc#893879)
