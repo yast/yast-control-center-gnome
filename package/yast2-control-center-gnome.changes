@@ -1,8 +1,10 @@
 -------------------------------------------------------------------
 Mon Sep 19 08:57:16 UTC 2016 - qzhao@suse.com
 
-- Add yast2-control-center-gnome-translation.patch.
-  Internationalization(bsc#877369).
+- Add yast2-control-center-gnome-translation.patch:
+  Make this package international, and add some translation
+  (bsc#877369).
+- 3.1.1
 
 -------------------------------------------------------------------
 Mon Aug 31 08:24:09 UTC 2015 - fezhang@suse.com
@@ -285,4 +287,3 @@ Tue Oct 24 17:50:01 CEST 2006 - sreeves@suse.de
 Mon Oct  9 13:10:28 CEST 2006 - mmichael@suse.de
 
 - import 1st cut. 
-
