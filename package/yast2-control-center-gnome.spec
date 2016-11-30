@@ -19,9 +19,11 @@
 Name:           yast2-control-center-gnome
 Version:        3.1.11
 Release:        0
+
 Summary:        YaST2 - Control Center (GNOME version)
 License:        GPL-2.0+
 Group:          System/YaST
+
 Source:         %{name}-%{version}.tar.bz2
 BuildRequires:  gcc-c++
 BuildRequires:  libtool
