@@ -1,8 +1,7 @@
 -------------------------------------------------------------------
 Mon Sep 19 08:57:16 UTC 2016 - qzhao@suse.com
 
-- Add yast2-control-center-gnome-translation.patch:
-  Make this package internationalized, and add some translations
+- Make this package internationalized, and add some translations
   (bsc#877369).
 - 3.1.11
 
