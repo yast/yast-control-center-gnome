@@ -1,18 +1,11 @@
-language: cpp
-compiler:
-    - gcc
-before_install:
-    # disable rvm, use system Ruby
-    - rvm reset
-    - wget https://raw.githubusercontent.com/yast/yast-devtools/master/travis-tools/travis_setup.sh
-    - sh ./travis_setup.sh
-    # install newer glib (2.34 instead of provided 2.32)
-    - sudo add-apt-repository ppa:ricotz/testing -y
-    - sudo apt-get update -q
-    - sudo apt-get install yast2-devtools yast2-testsuite libgtk-3-dev libgnome-menu-3-dev libglib2.0-dev
-script:
-    - make -f Makefile.cvs
-    - make
-    - sudo make install
-    - make check
+sudo: required
+language: bash
+services:
+  - docker
 
+before_install:
+  - docker build -t yast-control-center-gnome-image .
+script:
+  # the "yast-travis-cpp" script is included in the base yastdevel/cpp image
+  # see https://github.com/yast/docker-yast-cpp/blob/master/yast-travis-cpp
+  - docker run -it -e TRAVIS=1 -e TRAVIS_JOB_ID="$TRAVIS_JOB_ID" yast-control-center-gnome-image yast-travis-cpp
