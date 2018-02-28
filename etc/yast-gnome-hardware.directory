@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Directory
-Icon=yast-hardware
-
-X-SuSE-DocTeamID=ycc_hardware
-
-Name=Hardware
-X-KDE-SubstituteUID=true
-
