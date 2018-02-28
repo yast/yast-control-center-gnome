@@ -147,7 +147,7 @@ cc_shell_category_view_constructed (GObject *object)
       GtkWidget *label;
       PangoAttrList *attrs;
 
-      label = gtk_label_new (_(priv->name));
+      label = gtk_label_new (_(priv->name)); // textdomain (GETTEXT_PACKAGE);
       attrs = pango_attr_list_new ();
       pango_attr_list_insert (attrs, pango_attr_weight_new (PANGO_WEIGHT_BOLD));
       gtk_label_set_attributes (GTK_LABEL (label), attrs);
